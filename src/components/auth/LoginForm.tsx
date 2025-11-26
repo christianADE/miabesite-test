@@ -53,32 +53,57 @@ export function LoginForm() {
   }, [searchParams]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const { email, password } = values;
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      const { email, password } = values;
+      console.log("Attempting login with email:", email);
+      
+      const { error, data } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    if (error) {
-      toast.error(error.message);
-      form.setValue("password", "");
-    } else {
-      toast.success("Connexion réussie ! Redirection vers le tableau de bord...");
-      router.push("/dashboard/sites");
-      router.refresh();
+      if (error) {
+        console.error("Login error:", error);
+        toast.error(error.message);
+        form.setValue("password", "");
+      } else {
+        console.log("Login successful");
+        toast.success("Connexion réussie ! Redirection vers le tableau de bord...");
+        router.push("/dashboard/sites");
+        router.refresh();
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      const errorMessage = err instanceof Error ? err.message : "Une erreur inattendue s'est produite.";
+      toast.error(errorMessage);
     }
   }
 
   const handleOAuthSignIn = async (provider: Provider) => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: provider,
-      options: {
-        redirectTo: `${typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'}/auth/callback`,
-      },
-    });
+    try {
+      console.log(`Attempting OAuth signin with ${provider}`);
+      
+      const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001';
+      const redirectUrl = `${origin}/auth/callback`;
+      
+      console.log(`OAuth redirect URL: ${redirectUrl}`);
+      
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: provider,
+        options: {
+          redirectTo: redirectUrl,
+          scopes: provider === 'google' ? 'openid email profile' : undefined,
+        },
+      });
 
-    if (error) {
-      toast.error(error.message);
+      if (error) {
+        console.error(`OAuth error with ${provider}:`, error);
+        toast.error(`Erreur ${provider}: ${error.message}`);
+      }
+    } catch (err) {
+      console.error("Erreur lors du login OAuth:", err);
+      const errorMessage = err instanceof Error ? err.message : "Une erreur inattendue s'est produite.";
+      toast.error(errorMessage);
     }
   };
 

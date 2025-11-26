@@ -91,21 +91,6 @@ export function DashboardSidebar({ subdomain, onLinkClick }: DashboardSidebarPro
       label: "Profil & Paramètres",
     },
     {
-      href: "/dashboard/referral",
-      icon: <Gift className="h-5 w-5" />,
-      label: "Parrainage",
-    },
-    {
-      href: "/dashboard/communities", // New link for communities listing
-      icon: <ListFilter className="h-5 w-5" />,
-      label: "Toutes les Communautés",
-    },
-    {
-      href: "/dashboard/community/create",
-      icon: <UsersIcon className="h-5 w-5" />,
-      label: "Créer une Communauté",
-    },
-    {
       href: "/dashboard/documentation",
       icon: <BookOpen className="h-5 w-5" />,
       label: "Documentation",

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { getServerUser } from '@/lib/serverAuth';
 import * as z from 'zod';
 
 const joinCommunitySchema = z.object({
@@ -12,9 +13,9 @@ const MAX_COMMUNITY_MEMBERS = 100;
 
 export async function POST(request: Request) {
   const supabase = createClient();
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  const user = await getServerUser(supabase);
 
-  if (userError || !user) {
+  if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

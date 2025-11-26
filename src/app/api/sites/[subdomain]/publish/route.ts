@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { getServerUser } from '@/lib/serverAuth';
 
 export async function PATCH(
   request: Request,
@@ -7,12 +8,8 @@ export async function PATCH(
 ) {
   const { subdomain } = params;
   const supabase = createClient();
-
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
-  }
+  const user = await getServerUser(supabase);
+  if (!user) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
 
   const { is_public } = await request.json();
 

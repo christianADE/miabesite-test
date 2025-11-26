@@ -174,9 +174,9 @@ export default function CreateCommunityPage() {
             <p className="text-sm text-muted-foreground mb-4">
               Continuez à parrainer des amis pour gagner plus de pièces !
             </p>
-            <Link href="/dashboard/referral" passHref>
+            <Link href="/dashboard/sites" passHref>
               <Button asChild className="w-full">
-                <div>Retour au programme de parrainage</div>
+                <div>Retour au dashboard</div>
               </Button>
             </Link>
           </CardContent>

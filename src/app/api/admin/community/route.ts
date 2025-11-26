@@ -1,26 +1,20 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { getServerUser, isSuperAdmin } from '@/lib/serverAuth';
 import { CommunityCreationSchema } from '@/lib/schemas/community-schema';
 import { generateUniqueCommunityJoinCode } from '@/lib/utils';
 
 export async function POST(request: Request) {
   const supabase = createClient();
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getServerUser(supabase);
 
   if (!user) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
   // Vérifier le rôle de l'utilisateur - seul un super_admin peut créer des communautés via ce panneau
-  const { data: profile, error: profileError } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single();
-
-  if (profileError || !profile || profile.role !== 'super_admin') {
-    console.error("API: Accès refusé pour la création de communauté. Rôle:", profile?.role, "Erreur:", profileError);
+  if (!(await isSuperAdmin(supabase, user))) {
     return NextResponse.json({ message: 'Forbidden: Super Admin access required' }, { status: 403 });
   }
 

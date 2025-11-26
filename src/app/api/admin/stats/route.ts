@@ -1,22 +1,19 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { getServerUser, isSuperAdmin } from '@/lib/serverAuth';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
   const supabase = createClient();
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  const user = await getServerUser(supabase);
 
-  if (userError || !user) {
+  if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   // Check if the user is a super_admin
-  const { data: profile, error: profileError } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single();
-
-  if (profileError || !profile || profile.role !== 'super_admin') {
+  if (!(await isSuperAdmin(supabase, user))) {
     return NextResponse.json({ error: 'Forbidden: Seuls les Super Admins peuvent accéder aux statistiques.' }, { status: 403 });
   }
 

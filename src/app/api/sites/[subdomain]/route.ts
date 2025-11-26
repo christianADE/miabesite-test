@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { getServerUser } from '@/lib/serverAuth';
 
 export async function DELETE(
   request: Request,
@@ -7,9 +8,7 @@ export async function DELETE(
 ) {
   const { subdomain } = params;
   const supabase = createClient();
-
-  const { data: { user } } = await supabase.auth.getUser();
-
+  const user = await getServerUser(supabase);
   if (!user) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }

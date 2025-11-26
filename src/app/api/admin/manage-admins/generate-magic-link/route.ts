@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { getServerUser, isSuperAdmin } from '@/lib/serverAuth';
 import * as z from 'zod';
 
 const generateMagicLinkSchema = z.object({
@@ -9,20 +10,15 @@ const generateMagicLinkSchema = z.object({
 
 export async function POST(request: Request) {
   const supabase = createClient();
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  const user = await getServerUser(supabase);
 
-  if (userError || !user) {
+  if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   // 1. Check if the requesting user is a super_admin
-  const { data: requesterProfile, error: requesterProfileError } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single();
-
-  if (requesterProfileError || !requesterProfile || requesterProfile.role !== 'super_admin') {
+  if (!(await isSuperAdmin(supabase, user))) {
+    return NextResponse.json({ error: 'Forbidden: Super Admin required' }, { status: 403 });
     return NextResponse.json({ error: 'Forbidden: Seuls les Super Admins peuvent générer des liens magiques.' }, { status: 403 });
   }
 

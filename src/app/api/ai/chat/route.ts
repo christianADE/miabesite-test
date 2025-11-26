@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai';
 import { createClient } from '@/lib/supabase/server';
+import { getServerUser } from '@/lib/serverAuth';
 import { SiteEditorFormData } from '@/lib/schemas/site-editor-form-schema'; // Import SiteEditorFormData type
 import { SupabaseClient } from '@supabase/supabase-js'; // Import SupabaseClient type
 
@@ -180,8 +181,8 @@ export async function POST(request: Request) {
     if (functionCalls && functionCalls.length > 0) {
       const functionCall = functionCalls[0].functionCall!; // Added non-null assertion here
 
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-      if (userError || !user) {
+      const user = await getServerUser(supabase);
+      if (!user) {
         return NextResponse.json({
           response: "Je ne peux pas effectuer cette action car vous n'êtes pas connecté. Veuillez vous connecter d'abord.",
           tool_code: "UNAUTHORIZED"
