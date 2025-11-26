@@ -6,6 +6,7 @@ import { EcommerceTemplate } from '@/components/site-templates/EcommerceTemplate
 import { ServicePortfolioTemplate } from '@/components/site-templates/ServicePortfolioTemplate';
 import { ProfessionalPortfolioTemplate } from '@/components/site-templates/ProfessionalPortfolioTemplate';
 import { ArtisanEcommerceTemplate } from '@/components/site-templates/ArtisanEcommerceTemplate';
+import { PremiumEcommerceTemplate } from '@/components/site-templates/PremiumEcommerceTemplate';
 import { SiteEditorFormData } from '@/lib/schemas/site-editor-form-schema';
 import type { Metadata } from 'next';
 import { TrackSiteVisit } from '@/components/TrackSiteVisit'; // Import the new component
@@ -109,7 +110,7 @@ export default async function DynamicSitePage({ params }: { params: { subdomain:
   const TemplateComponent = (() => {
     switch (templateType) {
       case 'ecommerce':
-        return EcommerceTemplate;
+        return PremiumEcommerceTemplate;
       case 'service-portfolio':
         return ServicePortfolioTemplate;
       case 'professional-portfolio':
