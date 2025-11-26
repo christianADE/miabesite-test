@@ -139,19 +139,7 @@ export function ConfigurationNetworkStep() {
           </FormItem>
         )}
       />
-      <FormField
-        control={control}
-        name="linkedinLink"
-        render={({ field }: { field: ControllerRenderProps<FieldValues, "linkedinLink"> }) => (
-          <FormItem>
-            <FormLabel className="flex items-center gap-1"><Linkedin className="h-4 w-4 text-muted-foreground" /> Lien LinkedIn</FormLabel>
-            <FormControl>
-              <Input placeholder="https://linkedin.com/in/votreprofil" {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+      {/* LinkedIn removed from the ecommerce wizard - moved to advanced editor */}
 
       <Separator className="my-8" />
 
@@ -229,6 +217,77 @@ export function ConfigurationNetworkStep() {
 
       <FormField
         control={control}
+        name="deliveryZones"
+        render={({ field }: { field: ControllerRenderProps<FieldValues, "deliveryZones"> }) => (
+          <FormItem>
+            <FormLabel>Zones de livraison (séparées par une virgule)</FormLabel>
+            <FormControl>
+              <Input placeholder="Ex: Grand Lomé, Togo entier" {...field} />
+            </FormControl>
+            <FormMessage />
+            <p className="text-sm text-muted-foreground">Indiquez les zones desservies par votre boutique.</p>
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={control}
+        name="deliveryFees"
+        render={({ field }: { field: ControllerRenderProps<FieldValues, "deliveryFees"> }) => (
+          <FormItem>
+            <FormLabel>Frais de livraison (optionnel)</FormLabel>
+            <FormControl>
+              <Input placeholder="Ex: 2000 XOF or Free over 20000" {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={control}
+        name="whatsappOrderMessage"
+        render={({ field }: { field: ControllerRenderProps<FieldValues, "whatsappOrderMessage"> }) => (
+          <FormItem>
+            <FormLabel>Message WhatsApp personnalisé pour commandes</FormLabel>
+            <FormControl>
+              <Input placeholder="Ex: Bonjour ! Je souhaite commander..." {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={control}
+        name="openingHours"
+        render={({ field }: { field: ControllerRenderProps<FieldValues, "openingHours"> }) => (
+          <FormItem>
+            <FormLabel>Horaires d'ouverture (optionnel)</FormLabel>
+            <FormControl>
+              <Input placeholder="Ex: Lun-Ven 08:00-18:00" {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={control}
+        name="returnPolicy"
+        render={({ field }: { field: ControllerRenderProps<FieldValues, "returnPolicy"> }) => (
+          <FormItem>
+            <FormLabel>Politique de retour (optionnel)</FormLabel>
+            <FormControl>
+              <Input placeholder="Ex: Retour sous 7 jours, produit non ouvert" {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={control}
         name="depositRequired"
         render={({ field }: { field: ControllerRenderProps<FieldValues, "depositRequired"> }) => (
           <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
@@ -248,69 +307,7 @@ export function ConfigurationNetworkStep() {
         )}
       />
 
-      <Separator className="my-8" />
-
-      <h4 className="text-xl font-semibold text-center flex items-center justify-center gap-2"><EyeOff className="h-5 w-5" /> Visibilité des Sections</h4>
-      <FormField
-        control={control}
-        name="sectionsVisibility.showHero"
-        render={({ field }: { field: ControllerRenderProps<FieldValues, "sectionsVisibility.showHero"> }) => (
-          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-            <FormLabel>Afficher la Section Héro</FormLabel>
-            <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
-          </FormItem>
-        )}
-      />
-      <FormField
-        control={control}
-        name="sectionsVisibility.showAbout"
-        render={({ field }: { field: ControllerRenderProps<FieldValues, "sectionsVisibility.showAbout"> }) => (
-          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-            <FormLabel>Afficher la Section "À Propos"</FormLabel>
-            <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
-          </FormItem>
-        )}
-      />
-      <FormField
-        control={control}
-        name="sectionsVisibility.showProductsServices"
-        render={({ field }: { field: ControllerRenderProps<FieldValues, "sectionsVisibility.showProductsServices"> }) => (
-          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-            <FormLabel>Afficher la Section "Produits & Services"</FormLabel>
-            <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
-          </FormItem>
-        )}
-      />
-      <FormField
-        control={control}
-        name="sectionsVisibility.showTestimonials"
-        render={({ field }: { field: ControllerRenderProps<FieldValues, "sectionsVisibility.showTestimonials"> }) => (
-          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-            <FormLabel>Afficher la Section "Témoignages"</FormLabel>
-            <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
-          </FormItem>
-        )}
-      />
-      <FormField
-        control={control}
-        name="sectionsVisibility.showSkills"
-        render={({ field }: { field: ControllerRenderProps<FieldValues, "sectionsVisibility.showSkills"> }) => (
-          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-            <FormLabel>Afficher la Section "Compétences"</FormLabel>
-            <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
-          </FormItem>
-        )}
-      />
-      <FormField
-        control={control}
-        name="sectionsVisibility.showContact"
-        render={({ field }: { field: ControllerRenderProps<FieldValues, "sectionsVisibility.showContact"> }) => (
-          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-            <FormLabel>Afficher la Section "Contact"</FormLabel>
-            <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
-          </FormItem>
-        )}
-      />
+      {/* Section visibility controls moved to advanced editor - removed from short wizard for clarity */}
     </div>
   );
 }

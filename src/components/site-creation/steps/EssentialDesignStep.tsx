@@ -46,59 +46,35 @@ export function EssentialDesignStep() {
         L'identité numérique de votre entreprise.
       </p>
 
-      <FormField
-        control={control}
-        name="firstName"
-        render={({ field }: { field: ControllerRenderProps<FieldValues, "firstName"> }) => (
-          <FormItem>
-            <FormLabel className="flex items-center gap-1"><User className="h-4 w-4 text-muted-foreground" /> Prénom</FormLabel>
-            <FormControl>
-              <Input placeholder="Ex: Jean" {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-      <FormField
-        control={control}
-        name="lastName"
-        render={({ field }: { field: ControllerRenderProps<FieldValues, "lastName"> }) => (
-          <FormItem>
-            <FormLabel className="flex items-center gap-1"><User className="h-4 w-4 text-muted-foreground" /> Nom</FormLabel>
-            <FormControl>
-              <Input placeholder="Ex: Dupont" {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-      <FormField
-        control={control}
-        name="expertise"
-        render={({ field }: { field: ControllerRenderProps<FieldValues, "expertise"> }) => (
-          <FormItem>
-            <FormLabel className="flex items-center gap-1"><User className="h-4 w-4 text-muted-foreground" /> Domaine d'expertise / Travail</FormLabel>
-            <FormControl>
-              <Input placeholder="Ex: Développeur Web, Artisan Plombier" {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+      {/* Personal fields removed from simplified ecommerce wizard (moved to advanced editor) */}
 
       <FormField
         control={control}
         name="publicName"
         render={({ field }: { field: ControllerRenderProps<FieldValues, "publicName"> }) => (
           <FormItem>
-            <FormLabel className="flex items-center gap-1"><User className="h-4 w-4 text-muted-foreground" /> Nom Public & Activité</FormLabel>
+            <FormLabel className="flex items-center gap-1"><User className="h-4 w-4 text-muted-foreground" /> Nom de l'entreprise / Boutique</FormLabel>
             <FormControl>
-              <Input placeholder="Ex: Mamadou Couture, Aïsha Délices" {...field} />
+              <Input placeholder="Ex: Mamadou Couture" {...field} />
             </FormControl>
             <FormMessage />
             <p className="text-sm text-muted-foreground">
-              Nom de votre entreprise/personne et votre rôle principal.
+              Nom de votre entreprise/boutique.
             </p>
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={control}
+        name="category"
+        render={({ field }: { field: ControllerRenderProps<FieldValues, "category"> }) => (
+          <FormItem>
+            <FormLabel>Catégorie d'activité</FormLabel>
+            <FormControl>
+              <Input placeholder="Ex: Mode, Électronique, Alimentation" {...field} />
+            </FormControl>
+            <FormMessage />
           </FormItem>
         )}
       />
@@ -110,20 +86,8 @@ export function EssentialDesignStep() {
           <PhoneInputWithCountryCode
             name={field.name}
             label="Numéro WhatsApp (Obligatoire)"
-            placeholder="Ex: 07 00 00 00 00"
+            placeholder="Ex: +22870000000"
             required
-          />
-        )}
-      />
-
-      <FormField
-        control={control}
-        name="secondaryPhoneNumber"
-        render={({ field }: { field: ControllerRenderProps<FieldValues, "secondaryPhoneNumber"> }) => (
-          <PhoneInputWithCountryCode
-            name={field.name}
-            label="Numéro de Téléphone Secondaire (Optionnel)"
-            placeholder="Ex: 01 00 00 00 00"
           />
         )}
       />
@@ -172,7 +136,7 @@ export function EssentialDesignStep() {
           name="secondaryColor"
           render={({ field }: { field: ControllerRenderProps<FieldValues, "secondaryColor"> }) => (
             <FormItem>
-              <FormLabel>Couleur Secondaire du Site</FormLabel>
+              <FormLabel>Couleur Secondaire du Site (Optionnel)</FormLabel>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
                   <SelectTrigger>
@@ -185,6 +149,53 @@ export function EssentialDesignStep() {
                       {color.label}
                     </SelectItem>
                   ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={control}
+          name="siteType"
+          render={({ field }: { field: ControllerRenderProps<FieldValues, "siteType"> }) => (
+            <FormItem>
+              <FormLabel>Type de site</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sélectionnez un type" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="physical_products">Produits physiques</SelectItem>
+                  <SelectItem value="services">Services</SelectItem>
+                  <SelectItem value="digital">Digital / Téléchargement</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={control}
+          name="designStyle"
+          render={({ field }: { field: ControllerRenderProps<FieldValues, "designStyle"> }) => (
+            <FormItem>
+              <FormLabel>Style de design</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sélectionnez un style" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="modern">Moderne</SelectItem>
+                  <SelectItem value="minimal">Minimal</SelectItem>
+                  <SelectItem value="premium">Premium</SelectItem>
+                  <SelectItem value="colorful">Coloré</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />

@@ -15,6 +15,7 @@ import { Separator } from "@/components/ui/separator";
 import { Image as ImageIcon, LayoutTemplate, BookOpen } from "lucide-react"; // Importation des icônes
 import { toast } from "sonner";
 import { AIRewriteButton } from "@/components/AIRewriteButton"; // Import the new component
+import { ProductsServicesStep } from "./ProductsServicesStep";
 
 export function ContentStep() {
   const { control, watch, setValue } = useFormContext(); // Added watch and setValue
@@ -110,6 +111,11 @@ export function ContentStep() {
           </FormItem>
         )}
       />
+
+      <Separator className="my-8" />
+      <h4 className="text-xl font-semibold text-center">Produits & Services (Page rapide)</h4>
+      <p className="text-center text-muted-foreground">Ajoutez 1–3 offres clés. Pour une gestion avancée, utilisez l'éditeur.</p>
+      <ProductsServicesStep />
 
       <Separator className="my-8" />
 

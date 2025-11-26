@@ -16,8 +16,7 @@ import { SiteEditorFormData } from "@/lib/schemas/site-editor-form-schema"; // I
 // Import new step components
 import { EssentialDesignStep } from "./steps/EssentialDesignStep";
 import { ContentStep } from "./steps/ContentStep";
-import { SkillsStep } from "./steps/SkillsStep"; // New step import
-import { ProductsServicesStep } from "./steps/ProductsServicesStep"; // New step import
+// removed skills step from the streamlined ecommerce wizard
 import { ConfigurationNetworkStep } from "./steps/ConfigurationNetworkStep";
 
 // Utility function to generate a URL-friendly slug
@@ -37,74 +36,51 @@ const generateSlug = (text: string): string => {
 
 // Define the base schema as a ZodObject, now directly using SiteEditorFormData for consistency
 const wizardFormSchema = z.object({
-  // Étape 1: Infos Essentielles & Design
-  publicName: z.string().min(3, { message: "Le nom public est requis et doit contenir au moins 3 caractères." }).max(50, { message: "Le nom public ne peut pas dépasser 50 caractères." }),
-  whatsappNumber: z.string().regex(/^\+?\d{8,15}$/, { message: "Veuillez entrer un numéro WhatsApp valide (ex: +225 07 00 00 00 00)." }),
-  secondaryPhoneNumber: z.string().regex(/^\+?\d{8,15}$/, { message: "Veuillez entrer un numéro de téléphone valide." }).optional().or(z.literal('')),
+  // Étape 1: Infos Essentielles & Branding (optimisée)
+  publicName: z.string().min(3, { message: "Le nom de l'entreprise/boutique est requis." }).max(50),
+  category: z.string().min(2, { message: "Veuillez sélectionner une catégorie d'activité." }).optional().or(z.literal('')),
+  whatsappNumber: z.string().regex(/^\+?\d{8,15}$/, { message: "Veuillez entrer un numéro WhatsApp valide (ex: +22870000000)." }),
   email: z.string().email({ message: "Veuillez entrer une adresse email valide." }).optional().or(z.literal('')),
-  primaryColor: z.string().min(1, { message: "Veuillez sélectionner une couleur principale." }),
-  secondaryColor: z.string().min(1, { message: "Veuillez sélectionner une couleur secondaire." }),
+  businessLocation: z.string().min(2).max(100).optional().or(z.literal('')),
   logoOrPhoto: z.any().optional(), // File object or URL string
-  businessLocation: z.string().min(3, { message: "La localisation de l'entreprise est requise." }).max(100, { message: "La localisation ne peut pas dépasser 100 caractères." }),
+  primaryColor: z.string().min(1),
+  secondaryColor: z.string().optional().or(z.literal('')),
+  siteType: z.enum(["physical_products", "services", "digital"]).optional(),
+  designStyle: z.enum(["modern", "minimal", "premium", "colorful"]).optional(),
 
-  // New fields for user profile (optional in wizard, but part of schema)
-  firstName: z.string().min(2, "Le prénom est requis.").max(50, "Le prénom ne peut pas dépasser 50 caractères.").optional().or(z.literal('')),
-  lastName: z.string().min(2, "Le nom est requis.").max(50, "Le nom ne peut pas dépasser 50 caractères.").optional().or(z.literal('')),
-  expertise: z.string().min(3, "Le domaine d'expertise est requis.").max(100, "Le domaine d'expertise ne peut pas dépasser 100 caractères.").optional().or(z.literal('')),
-
-  // Étape 2: Contenu (Les Pages Clés)
-  heroSlogan: z.string().min(10, { message: "Le slogan est requis et doit contenir au moins 10 caractères." }).max(100, { message: "Le slogan ne peut pas dépasser 100 caractères." }),
-  aboutStory: z.string().min(50, { message: "Votre histoire/mission est requise et doit contenir au moins 50 caractères." }).max(500, { message: "Votre histoire/mission ne peut pas dépasser 500 caractères." }),
+  // Étape 2: Contenu & Produits/Services
+  heroSlogan: z.string().min(5).max(100).optional().or(z.literal('')),
+  aboutStory: z.string().min(20).max(1000).optional().or(z.literal('')),
   heroBackgroundImage: z.any().optional(), // File object or URL string
 
-  // Nouvelle Étape: Compétences / Expertise
-  skills: z.array(z.object({
-    title: z.string().min(3, "Le titre de la compétence est requis.").max(50, "Le titre ne peut pas dépasser 50 caractères."),
-    description: z.string().min(10, "La description est requise.").max(200, "La description ne peut pas dépasser 200 caractères."),
-    icon: z.string().optional(), // Lucide icon name or similar
-  })).max(10, "Vous ne pouvez ajouter que 10 compétences maximum.").optional(), // Optional for wizard, updated max to 10
-
-  // Nouvelle Étape: Produits & Services
+  // Produits & Services (lightweight for wizard)
   productsAndServices: z.array(z.object({
-    title: z.string().min(3, "Le titre du produit/service est requis.").max(50, "Le titre ne peut pas dépasser 50 caractères."),
-    price: z.preprocess(
-      (val: unknown) => (val === '' ? undefined : val),
-      z.coerce.number().min(0, "Le prix ne peut pas être négatif.").optional()
-    ),
-    currency: z.string().min(1, "La devise est requise."),
-    description: z.string().min(10, "La description est requise et doit contenir au moins 10 caractères.").max(300, "La description ne peut pas dépasser 300 caractères."),
-    image: z.any().optional(), // File object or URL string
-    actionButton: z.string().min(1, "L'action du bouton est requise."),
-  })).max(5, "Vous ne pouvez ajouter que 5 produits/services maximum."), // Increased max to 5 for more customization
+    title: z.string().min(2).max(100),
+    price: z.preprocess((val: unknown) => (val === '' ? undefined : val), z.coerce.number().min(0).optional()),
+    currency: z.string().min(1).optional().or(z.literal('')),
+    description: z.string().min(0).max(500).optional().or(z.literal('')),
+    image: z.any().optional(),
+    category: z.string().optional().or(z.literal('')),
+    stock: z.preprocess((val: unknown) => (val === '' ? undefined : val), z.coerce.number().min(0).optional()),
+    variants: z.array(z.string()).max(5).optional(),
+    actionButton: z.string().optional().or(z.literal('')),
+  })).max(10).optional(),
 
-  // Testimonials (New for wizard, but optional)
-  testimonials: z.array(z.object({
-    author: z.string().min(2, "Le nom de l'auteur est requis.").max(50, "Le nom ne peut pas dépasser 50 caractères."),
-    quote: z.string().min(20, "Le témoignage est requis.").max(500, "Le témoignage ne peut pas dépasser 500 caractères."),
-    location: z.string().min(2, "La localisation est requise.").max(50, "La localisation ne peut pas dépasser 50 caractères."),
-    avatar: z.any().optional(), // File object or URL string
-  })).max(5, "Vous ne pouvez ajouter que 5 témoignages maximum.").optional(), // Optional for wizard
-
-  // Étape 3 (maintenant Étape 5): Configuration et Réseaux
-  contactButtonAction: z.string().min(1, { message: "Veuillez sélectionner une action pour le bouton de contact." }),
-  facebookLink: z.string().url({ message: "Veuillez entrer un lien URL valide." }).optional().or(z.literal('')),
-  instagramLink: z.string().url({ message: "Veuillez entrer un lien URL valide." }).optional().or(z.literal('')),
-  linkedinLink: z.string().url({ message: "Veuillez entrer un lien URL valide." }).optional().or(z.literal('')),
-  paymentMethods: z.array(z.string()).max(5, "Vous ne pouvez sélectionner que 5 modes de paiement maximum."),
-  deliveryOption: z.string().min(1, { message: "Veuillez sélectionner une option de livraison/déplacement." }),
-  depositRequired: z.boolean(),
-  showContactForm: z.boolean(),
-  templateType: z.string().min(1, { message: "Veuillez sélectionner un type de template." }), // Add templateType to the schema
-
-  // Section Visibility (New for wizard, but optional)
-  sectionsVisibility: z.object({
-    showHero: z.boolean(),
-    showAbout: z.boolean(),
-    showProductsServices: z.boolean(),
-    showTestimonials: z.boolean(),
-    showSkills: z.boolean(),
-    showContact: z.boolean(),
-  }).optional(),
+  // Étape 3: Commandes, Paiement & Réseaux
+  contactButtonAction: z.string().min(1).optional().or(z.literal('')),
+  facebookLink: z.string().url().optional().or(z.literal('')),
+  instagramLink: z.string().url().optional().or(z.literal('')),
+  // linkedin removed from wizard (advanced editor)
+  paymentMethods: z.array(z.string()).optional(),
+  deliveryOption: z.string().optional().or(z.literal('')),
+  depositRequired: z.boolean().optional(),
+  showContactForm: z.boolean().optional(),
+  deliveryZones: z.array(z.string()).optional(),
+  deliveryFees: z.string().optional().or(z.literal('')),
+  whatsappOrderMessage: z.string().optional().or(z.literal('')),
+  openingHours: z.string().optional().or(z.literal('')),
+  returnPolicy: z.string().optional().or(z.literal('')),
+  templateType: z.string().min(1).optional(),
 });
 
 // Infer the type for the entire wizard form data from the schema
@@ -117,26 +93,21 @@ interface SiteCreationWizardProps {
 // Define separate schemas for each step
 const essentialDesignStepSchema = z.object({
   publicName: wizardFormSchema.shape.publicName,
+  category: wizardFormSchema.shape.category,
   whatsappNumber: wizardFormSchema.shape.whatsappNumber,
-  secondaryPhoneNumber: wizardFormSchema.shape.secondaryPhoneNumber,
   email: wizardFormSchema.shape.email,
+  businessLocation: wizardFormSchema.shape.businessLocation,
+  logoOrPhoto: wizardFormSchema.shape.logoOrPhoto,
   primaryColor: wizardFormSchema.shape.primaryColor,
   secondaryColor: wizardFormSchema.shape.secondaryColor,
-  logoOrPhoto: wizardFormSchema.shape.logoOrPhoto,
-  businessLocation: wizardFormSchema.shape.businessLocation,
-  firstName: wizardFormSchema.shape.firstName,
-  lastName: wizardFormSchema.shape.lastName,
-  expertise: wizardFormSchema.shape.expertise,
+  siteType: wizardFormSchema.shape.siteType,
+  designStyle: wizardFormSchema.shape.designStyle,
 });
 
 const contentStepSchema = z.object({
   heroSlogan: wizardFormSchema.shape.heroSlogan,
   aboutStory: wizardFormSchema.shape.aboutStory,
   heroBackgroundImage: wizardFormSchema.shape.heroBackgroundImage,
-});
-
-const skillsStepSchema = z.object({
-  skills: wizardFormSchema.shape.skills,
 });
 
 const productsServicesStepSchema = z.object({
@@ -147,11 +118,15 @@ const configurationNetworkStepSchema = z.object({
   contactButtonAction: wizardFormSchema.shape.contactButtonAction,
   facebookLink: wizardFormSchema.shape.facebookLink,
   instagramLink: wizardFormSchema.shape.instagramLink,
-  linkedinLink: wizardFormSchema.shape.linkedinLink,
   paymentMethods: wizardFormSchema.shape.paymentMethods,
   deliveryOption: wizardFormSchema.shape.deliveryOption,
   depositRequired: wizardFormSchema.shape.depositRequired,
   showContactForm: wizardFormSchema.shape.showContactForm,
+  deliveryZones: wizardFormSchema.shape.deliveryZones,
+  deliveryFees: wizardFormSchema.shape.deliveryFees,
+  whatsappOrderMessage: wizardFormSchema.shape.whatsappOrderMessage,
+  openingHours: wizardFormSchema.shape.openingHours,
+  returnPolicy: wizardFormSchema.shape.returnPolicy,
 });
 
 
@@ -159,35 +134,23 @@ const steps: {
   id: string;
   title: string;
   component: React.ComponentType<any>;
-  schema: z.ZodObject<any>; // Make this more specific to ZodObject
+  schema: z.ZodObject<any>;
 }[] = [
   {
     id: "essentialDesign",
-    title: "Infos Essentielles & Design",
+    title: "Page 1 — Identité & Branding",
     component: EssentialDesignStep,
     schema: essentialDesignStepSchema,
   },
   {
-    id: "content",
-    title: "Contenu (Pages Clés)",
+    id: "contentProducts",
+    title: "Page 2 — Contenu & Produits",
     component: ContentStep,
-    schema: contentStepSchema,
+    schema: contentStepSchema.extend(productsServicesStepSchema.shape),
   },
   {
-    id: "skills",
-    title: "Compétences / Expertise",
-    component: SkillsStep,
-    schema: skillsStepSchema,
-  },
-  {
-    id: "productsServices",
-    title: "Produits & Services",
-    component: ProductsServicesStep,
-    schema: productsServicesStepSchema,
-  },
-  {
-    id: "configurationNetwork",
-    title: "Configuration et Réseaux",
+    id: "ordersPayments",
+    title: "Page 3 — Commandes & Paiement",
     component: ConfigurationNetworkStep,
     schema: configurationNetworkStepSchema,
   },
@@ -235,45 +198,36 @@ export function SiteCreationWizard({ initialSiteData }: SiteCreationWizardProps)
   const defaultValues: WizardFormData = {
     publicName: initialSiteData?.publicName || "",
     whatsappNumber: initialSiteData?.whatsappNumber || "",
-    secondaryPhoneNumber: initialSiteData?.secondaryPhoneNumber || "",
     email: initialSiteData?.email || "",
+    category: initialSiteData?.category || "",
     primaryColor: initialSiteData?.primaryColor || "blue", // Default color
     secondaryColor: initialSiteData?.secondaryColor || "red", // Default color
     logoOrPhoto: initialSiteData?.logoOrPhoto || undefined, // This will be a URL if existing, not a File
     businessLocation: initialSiteData?.businessLocation || "",
 
-    firstName: initialSiteData?.firstName || "",
-    lastName: initialSiteData?.lastName || "",
-    expertise: initialSiteData?.expertise || "",
+    siteType: initialSiteData?.siteType || "physical_products",
+    designStyle: initialSiteData?.designStyle || "modern",
 
     heroSlogan: initialSiteData?.heroSlogan || "",
     aboutStory: initialSiteData?.aboutStory || "",
     heroBackgroundImage: initialSiteData?.heroBackgroundImage || undefined,
 
-    skills: initialSiteData?.skills || [], // Initialize with an empty array
     productsAndServices: initialSiteData?.productsAndServices || [], // Initialize with an empty array, ProductsServicesStep will add one if needed
-
-    testimonials: initialSiteData?.testimonials || [], // New field
-    
-
     contactButtonAction: initialSiteData?.contactButtonAction || "whatsapp", // Default to WhatsApp
     facebookLink: initialSiteData?.facebookLink || "",
     instagramLink: initialSiteData?.instagramLink || "",
-    linkedinLink: initialSiteData?.linkedinLink || "",
+    // linkedin removed from wizard defaults
     paymentMethods: initialSiteData?.paymentMethods || [],
     deliveryOption: initialSiteData?.deliveryOption || "",
     depositRequired: initialSiteData?.depositRequired || false,
     showContactForm: initialSiteData?.showContactForm !== undefined ? initialSiteData.showContactForm : true, // Default to true
     templateType: initialSiteData?.templateType || "default", // Default template
     subdomain: initialSiteData?.subdomain, // Include existing subdomain for updates
-    sectionsVisibility: initialSiteData?.sectionsVisibility || { // Default visibility for new sites
-      showHero: true,
-      showAbout: true,
-      showProductsServices: true,
-      showTestimonials: true,
-      showSkills: true,
-      showContact: true,
-    },
+    deliveryZones: initialSiteData?.deliveryZones || [],
+    deliveryFees: initialSiteData?.deliveryFees || "",
+    whatsappOrderMessage: initialSiteData?.whatsappOrderMessage || "",
+    openingHours: initialSiteData?.openingHours || "",
+    returnPolicy: initialSiteData?.returnPolicy || "",
   };
 
   const methods = useForm<WizardFormData>({
@@ -441,55 +395,31 @@ export function SiteCreationWizard({ initialSiteData }: SiteCreationWizardProps)
       }
 
       // Upload product images if present and they are new Files
-      for (const [index, product] of data.productsAndServices.entries()) {
-        if (product.image instanceof File) {
-          productImages[index] = await handleFileUpload(product.image, `products/${index}`, siteIdentifier!);
-          if (productImages[index] === null) throw new Error(`Product image ${index} upload failed.`);
-        } else if (typeof product.image === 'string') {
-          productImages[index] = product.image;
-        } else {
-          productImages[index] = null;
-        }
-      }
-
-      // Upload testimonial avatars if present and they are new Files
-      if (data.testimonials) {
-        for (const [index, testimonial] of data.testimonials.entries()) {
-          if (testimonial.avatar instanceof File) {
-            testimonialAvatars[index] = await handleFileUpload(testimonial.avatar, `testimonials/${index}`, siteIdentifier!);
-            if (testimonialAvatars[index] === null) throw new Error(`Testimonial avatar ${index} upload failed.`);
-          } else if (typeof testimonial.avatar === 'string') {
-            testimonialAvatars[index] = testimonial.avatar;
+      if (data.productsAndServices && data.productsAndServices.length) {
+        for (const [index, product] of data.productsAndServices.entries()) {
+          if (product.image instanceof File) {
+            productImages[index] = await handleFileUpload(product.image, `products/${index}`, siteIdentifier!);
+            if (productImages[index] === null) throw new Error(`Product image ${index} upload failed.`);
+          } else if (typeof product.image === 'string') {
+            productImages[index] = product.image;
           } else {
-            testimonialAvatars[index] = null;
+            productImages[index] = null;
           }
         }
       }
 
+      // Upload testimonial avatars if present and they are new Files
       // Prepare site_data for Supabase, replacing File objects with URLs
       const siteDataToSave: SiteEditorFormData = {
         ...data,
         logoOrPhoto: logoUrl,
         heroBackgroundImage: heroBackgroundImageUrl,
-        productsAndServices: data.productsAndServices.map((product, index) => ({
+        productsAndServices: data.productsAndServices ? data.productsAndServices.map((product, index) => ({
           ...product,
           image: productImages[index] !== undefined ? productImages[index] : product.image,
-        })),
-        testimonials: data.testimonials?.map((testimonial, index) => ({
-          ...testimonial,
-          avatar: testimonialAvatars[index] !== undefined ? testimonialAvatars[index] : testimonial.avatar,
-        })) || [],
-        skills: data.skills || [], // Ensure skills array is passed
-        sectionsVisibility: data.sectionsVisibility || { // Ensure visibility is passed
-          showHero: true,
-          showAbout: true,
-          showProductsServices: true,
-          showTestimonials: true,
-          showSkills: true,
-          showContact: true,
-        },
-        // Removed subdomain from siteDataToSave as it's a top-level column
-      };
+        })) : [],
+        // Keep other fields present in data (deliveryZones, whatsappOrderMessage, etc.)
+      } as unknown as SiteEditorFormData;
 
       if (initialSiteData?.id) {
         // Update existing site

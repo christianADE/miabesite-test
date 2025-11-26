@@ -9,15 +9,23 @@ const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
 const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY;
 const VAPID_SUBJECT = process.env.VAPID_SUBJECT; // e.g., mailto:contact@miabesite.com
 
+let PUSH_ENABLED = false;
+
 if (!VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY || !VAPID_SUBJECT) {
   console.error("VAPID keys or subject are not set in environment variables. Push notifications will not work.");
-  // In a real app, you might want to throw an error or handle this more gracefully.
+  // Push remains disabled.
 } else {
-  webpush.setVapidDetails(
-    VAPID_SUBJECT,
-    VAPID_PUBLIC_KEY,
-    VAPID_PRIVATE_KEY
-  );
+  try {
+    webpush.setVapidDetails(
+      VAPID_SUBJECT,
+      VAPID_PUBLIC_KEY,
+      VAPID_PRIVATE_KEY
+    );
+    PUSH_ENABLED = true;
+  } catch (err) {
+    console.error("Invalid VAPID keys provided. Push notifications disabled.", err);
+    PUSH_ENABLED = false;
+  }
 }
 
 const notificationPayloadSchema = z.object({
@@ -45,6 +53,11 @@ export async function POST(request: Request) {
 
   if (profileError || !profile || profile.role !== 'super_admin') {
     return NextResponse.json({ error: 'Forbidden: Seuls les Super Admins peuvent envoyer des notifications push.' }, { status: 403 });
+  }
+
+  if (!PUSH_ENABLED) {
+    console.warn("Push notifications are not configured properly. Aborting send.");
+    return NextResponse.json({ error: 'Push notifications not configured' }, { status: 503 });
   }
 
   try {
