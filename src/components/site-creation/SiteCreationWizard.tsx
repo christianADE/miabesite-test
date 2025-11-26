@@ -257,7 +257,11 @@ export function SiteCreationWizard({ initialSiteData }: SiteCreationWizardProps)
   // Check if any field in the current step has an error
   const isCurrentStepValid = !currentStepFieldNames.some(fieldName => errors[fieldName]);
 
-  const handleNext = async () => {
+  const handleNext = async (e?: React.MouseEvent<HTMLButtonElement>) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     if (currentStep >= steps.length - 1) return;
 
     // Trigger validation for only the current step's fields
@@ -270,7 +274,11 @@ export function SiteCreationWizard({ initialSiteData }: SiteCreationWizardProps)
     }
   };
 
-  const handlePrevious = () => {
+  const handlePrevious = (e?: React.MouseEvent<HTMLButtonElement>) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     setCurrentStep((prev) => prev - 1);
   };
 

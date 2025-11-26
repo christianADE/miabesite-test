@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button";
 interface WizardNavigationProps {
   currentStep: number;
   totalSteps: number;
-  onNext: () => void;
-  onPrevious: () => void;
+  onNext: (e?: React.MouseEvent<HTMLButtonElement>) => void;
+  onPrevious: (e?: React.MouseEvent<HTMLButtonElement>) => void;
   isSubmitting: boolean;
   isValid: boolean;
 }
@@ -28,7 +28,7 @@ export function WizardNavigation({
       <Button
         type="button"
         variant="outline"
-        onClick={onPrevious}
+        onClick={(e) => onPrevious(e)}
         disabled={isFirstStep || isSubmitting}
       >
         Précédent
@@ -38,7 +38,7 @@ export function WizardNavigation({
           {isSubmitting ? "Création..." : "Créer mon site"}
         </Button>
       ) : (
-        <Button type="button" onClick={onNext} disabled={isSubmitting || !isValid}>
+        <Button type="button" onClick={(e) => onNext(e)} disabled={isSubmitting || !isValid}>
           Suivant
         </Button>
       )}
