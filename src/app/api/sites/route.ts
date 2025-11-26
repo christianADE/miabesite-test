@@ -86,3 +86,50 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: err.message || 'Unexpected error' }, { status: 500 });
   }
 }
+
+export async function DELETE(request: Request) {
+  const supabase = createClient();
+  const user = await getServerUser(supabase);
+
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  try {
+    const { searchParams } = new URL(request.url);
+    const siteId = searchParams.get('id');
+
+    if (!siteId) {
+      return NextResponse.json({ error: 'Site ID is required' }, { status: 400 });
+    }
+
+    // Verify that the site belongs to the current user
+    const { data: site, error: fetchError } = await supabase
+      .from('sites')
+      .select('user_id')
+      .eq('id', siteId)
+      .single();
+
+    if (fetchError || !site) {
+      return NextResponse.json({ error: 'Site not found' }, { status: 404 });
+    }
+
+    if (site.user_id !== user.id) {
+      return NextResponse.json({ error: 'Forbidden: You cannot delete this site' }, { status: 403 });
+    }
+
+    // Delete the site
+    const { error: deleteError } = await supabase
+      .from('sites')
+      .delete()
+      .eq('id', siteId);
+
+    if (deleteError) {
+      console.error('Error deleting site:', deleteError);
+      return NextResponse.json({ error: 'Failed to delete site' }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true, message: 'Site deleted successfully' });
+  } catch (err: any) {
+    console.error('DELETE /api/sites error:', err);
+    return NextResponse.json({ error: err.message || 'Unexpected error' }, { status: 500 });
+  }
+}

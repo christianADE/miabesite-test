@@ -3,9 +3,10 @@ import { createClient } from "@/lib/supabase/server"; // Use server-side Supabas
 import { redirect } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Globe } from "lucide-react";
+import { PlusCircle } from "lucide-react";
 import Link from "next/link";
 import type { Metadata } from 'next';
+import SiteCard from "./site-card";
 
 export const metadata: Metadata = {
   title: "Mes Sites",
@@ -80,29 +81,7 @@ export default async function DashboardSitesPage() {
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {userSites.map((site) => (
-            <Card key={site.id} className="hover:shadow-lg transition-shadow duration-200">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Globe className="h-5 w-5 text-primary" />
-                  {site.site_data?.publicName || site.subdomain}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  Lien: <span className="font-medium text-foreground">/sites/{site.subdomain}</span>
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Statut: <span className="font-medium text-green-600">{site.status === 'published' ? 'En ligne' : 'Brouillon'}</span>
-                </p>
-                <Link href={`/dashboard/${site.subdomain}/overview`} passHref>
-                  <Button asChild className="w-full">
-                    <div>
-                      Gérer le site
-                    </div>
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
+            <SiteCard key={site.id} site={site} />
           ))}
         </div>
       )}
