@@ -75,7 +75,49 @@ export const siteEditorFormSchema = z.object({
   }).optional(),
 });
 
+// Lightweight schema for ecommerce wizard (minimal required fields)
+export const ecommerceWizardSchema = z.object({
+  publicName: z.string().min(3).max(50),
+  category: z.string().optional().or(z.literal('')),
+  whatsappNumber: z.string().regex(/^\+?\d{8,15}$/),
+  email: z.string().email().optional().or(z.literal('')),
+  businessLocation: z.string().min(2).max(100).optional().or(z.literal('')),
+  logoOrPhoto: z.any().optional(),
+  primaryColor: z.string().min(1),
+  secondaryColor: z.string().optional().or(z.literal('')),
+  siteType: z.enum(["physical_products", "services", "digital"]).optional(),
+  designStyle: z.enum(["modern", "minimal", "premium", "colorful"]).optional(),
+  heroSlogan: z.string().min(5).max(100).optional().or(z.literal('')),
+  aboutStory: z.string().min(20).max(1000).optional().or(z.literal('')),
+  heroBackgroundImage: z.any().optional(),
+  productsAndServices: z.array(z.object({
+    title: z.string().min(2).max(100),
+    price: z.preprocess((val: unknown) => (val === '' ? undefined : val), z.coerce.number().min(0).optional()),
+    currency: z.string().optional().or(z.literal('')),
+    description: z.string().min(0).max(500).optional().or(z.literal('')),
+    image: z.any().optional(),
+    category: z.string().optional().or(z.literal('')),
+    stock: z.preprocess((val: unknown) => (val === '' ? undefined : val), z.coerce.number().min(0).optional()),
+    variants: z.array(z.string()).max(5).optional(),
+    actionButton: z.string().optional().or(z.literal('')),
+  })).max(10).optional(),
+  contactButtonAction: z.string().optional().or(z.literal('')),
+  facebookLink: z.string().url().optional().or(z.literal('')),
+  instagramLink: z.string().url().optional().or(z.literal('')),
+  paymentMethods: z.array(z.string()).optional(),
+  deliveryOption: z.string().optional().or(z.literal('')),
+  depositRequired: z.boolean().optional(),
+  showContactForm: z.boolean().optional(),
+  deliveryZones: z.array(z.string()).optional(),
+  deliveryFees: z.string().optional().or(z.literal('')),
+  whatsappOrderMessage: z.string().optional().or(z.literal('')),
+  openingHours: z.string().optional().or(z.literal('')),
+  returnPolicy: z.string().optional().or(z.literal('')),
+  templateType: z.string().optional(),
+});
+
 export type SiteEditorFormData = z.infer<typeof siteEditorFormSchema>;
+export type EcommerceWizardData = z.infer<typeof ecommerceWizardSchema>;
 export type ProductAndService = z.infer<typeof siteEditorFormSchema>['productsAndServices'][number];
 export type Testimonial = z.infer<typeof siteEditorFormSchema>['testimonials'][number];
 export type Skill = z.infer<typeof siteEditorFormSchema>['skills'][number];

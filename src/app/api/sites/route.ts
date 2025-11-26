@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { getServerUser } from '@/lib/serverAuth';
-import { siteEditorFormSchema } from '@/lib/schemas/site-editor-form-schema';
+import { ecommerceWizardSchema } from '@/lib/schemas/site-editor-form-schema';
 
 // Simple slug generator (same rules as client-side)
 function generateSlug(text: string) {
@@ -27,8 +27,9 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-    const parseResult = siteEditorFormSchema.safeParse(body.siteData ?? body);
+    const parseResult = ecommerceWizardSchema.safeParse(body.siteData ?? body);
     if (!parseResult.success) {
+      console.error('Validation errors:', parseResult.error.flatten());
       return NextResponse.json({ error: 'Invalid site data', details: parseResult.error.flatten() }, { status: 400 });
     }
 
@@ -47,6 +48,7 @@ export async function POST(request: Request) {
         .single();
 
       if (updateError) {
+        console.error('Update error:', updateError);
         return NextResponse.json({ error: updateError.message }, { status: 500 });
       }
 
@@ -69,11 +71,12 @@ export async function POST(request: Request) {
 
     const { data: insertData, error: insertError } = await supabase
       .from('sites')
-      .insert({ user_id: user.id, subdomain, site_data: siteData, status: 'published', template_type: siteData.templateType })
+      .insert({ user_id: user.id, subdomain, site_data: siteData, status: 'published', template_type: siteData.templateType || 'ecommerce' })
       .select()
       .single();
 
     if (insertError) {
+      console.error('Insert error:', insertError);
       return NextResponse.json({ error: insertError.message }, { status: 500 });
     }
 
