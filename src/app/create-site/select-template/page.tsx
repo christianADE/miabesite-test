@@ -46,7 +46,8 @@ export default function SelectTemplatePage() {
     },
   ];
 
-  const allowedTemplates = new Set(['ecommerce','artisan-ecommerce']);
+  // For now only the simple ecommerce flow is supported; artisanal ecommerce is under maintenance
+  const allowedTemplates = new Set(['ecommerce']);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-muted py-12 px-4">

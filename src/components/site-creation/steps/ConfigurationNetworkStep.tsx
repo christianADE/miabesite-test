@@ -28,45 +28,31 @@ export function ConfigurationNetworkStep() {
   const contactButtonOptions = [
     { value: "whatsapp", label: "WhatsApp (Recommandé)" },
     { value: "emailForm", label: "Formulaire d'e-mail" },
-    { value: "phoneNumber", label: "Numéro de Téléphone" },
   ];
 
+  // Minimal payment options for the wizard
   const paymentMethods = [
     { id: "cash", label: "Cash à la livraison" },
-    { id: "mobileMoney", label: "Mobile Money (Orange Money, MoMo, etc.)" },
-    { id: "bankTransfer", label: "Virement bancaire" },
-    { id: "appPayment", label: "Paiement par l'application (si disponible)" },
-  ];
-
-  const deliveryOptions = [
-    { value: "local", label: "Local (dans la ville seulement)" },
-    { value: "national", label: "National" },
-    { value: "international", label: "International" },
-    { value: "providerTravel", label: "Déplacement du prestataire (tarif en sus)" },
-    { value: "none", label: "Pas de livraison/déplacement" },
+    { id: "mobileMoney", label: "Mobile Money" },
   ];
 
   return (
     <div className="space-y-6">
       <h3 className="text-2xl font-bold text-center flex items-center justify-center gap-2">
-        <Globe className="h-6 w-6 text-primary" /> Configuration et Réseaux
+        <Globe className="h-6 w-6 text-primary" /> Configuration minimale
       </h3>
       <p className="text-center text-muted-foreground">
-        Paramétrez les interactions et la visibilité de votre site.
+        Étape légère : seules les options essentielles sont demandées ici. Le reste est disponible dans l'éditeur avancé après création.
       </p>
 
-      {/* Le champ sous-domaine est supprimé ici */}
-      {/* businessLocation a été déplacé vers EssentialDesignStep */}
+      <Separator className="my-6" />
 
-      <Separator className="my-8" />
-
-      <h4 className="text-xl font-semibold text-center flex items-center justify-center gap-2"><MessageSquare className="h-5 w-5" /> Gestion des Commandes</h4>
       <FormField
         control={control}
         name="contactButtonAction"
         render={({ field }: { field: ControllerRenderProps<FieldValues, "contactButtonAction"> }) => (
           <FormItem>
-            <FormLabel>Action du Bouton "Contact/Commander"</FormLabel>
+            <FormLabel>Action du bouton de contact</FormLabel>
             <Select onValueChange={field.onChange} defaultValue={field.value}>
               <FormControl>
                 <SelectTrigger>
@@ -82,9 +68,6 @@ export function ConfigurationNetworkStep() {
               </SelectContent>
             </Select>
             <FormMessage />
-            <p className="text-sm text-muted-foreground">
-              Où souhaitez-vous que vos clients soient dirigés pour vous contacter ou commander ?
-            </p>
           </FormItem>
         )}
       />
@@ -103,53 +86,21 @@ export function ConfigurationNetworkStep() {
             <div className="space-y-1 leading-none">
               <FormLabel>Afficher un formulaire de contact ?</FormLabel>
               <p className="text-sm text-muted-foreground">
-                Cochez pour inclure un formulaire de contact sur votre site.
+                Utile si vous préférez un formulaire intégré plutôt que l'envoi direct sur WhatsApp.
               </p>
             </div>
           </FormItem>
         )}
       />
 
-      <Separator className="my-8" />
+      <Separator className="my-6" />
 
-      <h4 className="text-xl font-semibold text-center flex items-center justify-center gap-2"><Globe className="h-5 w-5" /> Réseaux Sociaux (Optionnel)</h4>
-      <FormField
-        control={control}
-        name="facebookLink"
-        render={({ field }: { field: ControllerRenderProps<FieldValues, "facebookLink"> }) => (
-          <FormItem>
-            <FormLabel className="flex items-center gap-1"><Facebook className="h-4 w-4 text-muted-foreground" /> Lien Facebook</FormLabel>
-            <FormControl>
-              <Input placeholder="https://facebook.com/votrepage" {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-      <FormField
-        control={control}
-        name="instagramLink"
-        render={({ field }: { field: ControllerRenderProps<FieldValues, "instagramLink"> }) => (
-          <FormItem>
-            <FormLabel className="flex items-center gap-1"><Instagram className="h-4 w-4 text-muted-foreground" /> Lien Instagram</FormLabel>
-            <FormControl>
-              <Input placeholder="https://instagram.com/votreprofil" {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-      {/* LinkedIn removed from the ecommerce wizard - moved to advanced editor */}
-
-      <Separator className="my-8" />
-
-      <h4 className="text-xl font-semibold text-center flex items-center justify-center gap-2"><CreditCard className="h-5 w-5" /> Conditions de Paiement & Livraison</h4>
       <FormField
         control={control}
         name="paymentMethods"
         render={() => (
           <FormItem>
-            <FormLabel>Modes de Paiement Acceptés</FormLabel>
+            <FormLabel>Modes de paiement (optionnel)</FormLabel>
             <div className="space-y-2">
               {paymentMethods.map((method) => (
                 <FormField
@@ -186,128 +137,10 @@ export function ConfigurationNetworkStep() {
               ))}
             </div>
             <FormMessage />
+            <p className="text-sm text-muted-foreground mt-2">Ne vous inquiétez pas si vous ne configurez pas tout maintenant — vous pourrez affiner ces options dans l'éditeur avancé.</p>
           </FormItem>
         )}
       />
-
-      <FormField
-        control={control}
-        name="deliveryOption"
-        render={({ field }: { field: ControllerRenderProps<FieldValues, "deliveryOption"> }) => (
-          <FormItem>
-            <FormLabel className="flex items-center gap-1"><Truck className="h-4 w-4 text-muted-foreground" /> Livraison / Déplacement</FormLabel>
-            <Select onValueChange={field.onChange} defaultValue={field.value}>
-              <FormControl>
-                <SelectTrigger>
-                  <SelectValue placeholder="Sélectionnez une option" />
-                </SelectTrigger>
-              </FormControl>
-              <SelectContent>
-                {deliveryOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <FormField
-        control={control}
-        name="deliveryZones"
-        render={({ field }: { field: ControllerRenderProps<FieldValues, "deliveryZones"> }) => (
-          <FormItem>
-            <FormLabel>Zones de livraison (séparées par une virgule)</FormLabel>
-            <FormControl>
-              <Input placeholder="Ex: Grand Lomé, Togo entier" {...field} />
-            </FormControl>
-            <FormMessage />
-            <p className="text-sm text-muted-foreground">Indiquez les zones desservies par votre boutique.</p>
-          </FormItem>
-        )}
-      />
-
-      <FormField
-        control={control}
-        name="deliveryFees"
-        render={({ field }: { field: ControllerRenderProps<FieldValues, "deliveryFees"> }) => (
-          <FormItem>
-            <FormLabel>Frais de livraison (optionnel)</FormLabel>
-            <FormControl>
-              <Input placeholder="Ex: 2000 XOF or Free over 20000" {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <FormField
-        control={control}
-        name="whatsappOrderMessage"
-        render={({ field }: { field: ControllerRenderProps<FieldValues, "whatsappOrderMessage"> }) => (
-          <FormItem>
-            <FormLabel>Message WhatsApp personnalisé pour commandes</FormLabel>
-            <FormControl>
-              <Input placeholder="Ex: Bonjour ! Je souhaite commander..." {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <FormField
-        control={control}
-        name="openingHours"
-        render={({ field }: { field: ControllerRenderProps<FieldValues, "openingHours"> }) => (
-          <FormItem>
-            <FormLabel>Horaires d'ouverture (optionnel)</FormLabel>
-            <FormControl>
-              <Input placeholder="Ex: Lun-Ven 08:00-18:00" {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <FormField
-        control={control}
-        name="returnPolicy"
-        render={({ field }: { field: ControllerRenderProps<FieldValues, "returnPolicy"> }) => (
-          <FormItem>
-            <FormLabel>Politique de retour (optionnel)</FormLabel>
-            <FormControl>
-              <Input placeholder="Ex: Retour sous 7 jours, produit non ouvert" {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <FormField
-        control={control}
-        name="depositRequired"
-        render={({ field }: { field: ControllerRenderProps<FieldValues, "depositRequired"> }) => (
-          <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-            <FormControl>
-              <Checkbox
-                checked={field.value}
-                onCheckedChange={field.onChange}
-              />
-            </FormControl>
-            <div className="space-y-1 leading-none">
-              <FormLabel>Acompte requis ?</FormLabel>
-              <p className="text-sm text-muted-foreground">
-                Cochez si un acompte est nécessaire pour les commandes/services.
-              </p>
-            </div>
-          </FormItem>
-        )}
-      />
-
-      {/* Section visibility controls moved to advanced editor - removed from short wizard for clarity */}
     </div>
   );
 }

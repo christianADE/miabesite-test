@@ -114,19 +114,14 @@ const productsServicesStepSchema = z.object({
   productsAndServices: wizardFormSchema.shape.productsAndServices,
 });
 
+// Simplified step schema: only the essential fields for a lightweight wizard
 const configurationNetworkStepSchema = z.object({
+  // Where the contact button leads (default: whatsapp)
   contactButtonAction: wizardFormSchema.shape.contactButtonAction,
-  facebookLink: wizardFormSchema.shape.facebookLink,
-  instagramLink: wizardFormSchema.shape.instagramLink,
-  paymentMethods: wizardFormSchema.shape.paymentMethods,
-  deliveryOption: wizardFormSchema.shape.deliveryOption,
-  depositRequired: wizardFormSchema.shape.depositRequired,
+  // Simple toggle to show/hide the contact form
   showContactForm: wizardFormSchema.shape.showContactForm,
-  deliveryZones: wizardFormSchema.shape.deliveryZones,
-  deliveryFees: wizardFormSchema.shape.deliveryFees,
-  whatsappOrderMessage: wizardFormSchema.shape.whatsappOrderMessage,
-  openingHours: wizardFormSchema.shape.openingHours,
-  returnPolicy: wizardFormSchema.shape.returnPolicy,
+  // Keep payment methods minimal in the wizard (cash / mobile money)
+  paymentMethods: z.array(z.string()).optional(),
 });
 
 
