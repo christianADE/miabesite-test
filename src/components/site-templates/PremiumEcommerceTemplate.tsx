@@ -50,9 +50,9 @@ export function PremiumEcommerceTemplate({
   const displayProducts = products.slice(0, 6);
 
   return (
-    <div className="min-h-screen bg-black text-white overflow-hidden">
+    <div className="min-h-screen bg-white text-gray-900 overflow-hidden">
       {/* Navigation Premium */}
-      <nav className="fixed top-0 w-full z-50 backdrop-blur-md bg-black/30 border-b border-white/5">
+      <nav className="fixed top-0 w-full z-50 backdrop-blur-md bg-white/60 border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <div className="flex items-center gap-2">
             {siteData.logoOrPhoto && (
@@ -75,18 +75,18 @@ export function PremiumEcommerceTemplate({
           </button>
 
           <div className="hidden md:flex gap-8 items-center">
-            <a href="#products" className="text-sm hover:text-gray-400 transition">
+            <a href="#products" className="text-sm hover:text-gray-600 transition">
               Produits
             </a>
-            <a href="#about" className="text-sm hover:text-gray-400 transition">
+            <a href="#about" className="text-sm hover:text-gray-600 transition">
               À propos
             </a>
-            <a href="#contact" className="text-sm hover:text-gray-400 transition">
+            <a href="#contact" className="text-sm hover:text-gray-600 transition">
               Contact
             </a>
             <button
               style={{ backgroundColor: primaryColor }}
-              className="px-6 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition text-white"
+              className="px-6 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition text-white shadow"
             >
               Panier
             </button>
@@ -94,14 +94,14 @@ export function PremiumEcommerceTemplate({
         </div>
 
         {isMenuOpen && (
-          <div className="md:hidden bg-black/90 border-t border-white/5 p-4 space-y-4">
-            <a href="#products" className="block text-sm hover:text-gray-400 transition">
+          <div className="md:hidden bg-white p-4 space-y-4 border-t border-gray-200">
+            <a href="#products" className="block text-sm hover:text-gray-600 transition">
               Produits
             </a>
-            <a href="#about" className="block text-sm hover:text-gray-400 transition">
+            <a href="#about" className="block text-sm hover:text-gray-600 transition">
               À propos
             </a>
-            <a href="#contact" className="block text-sm hover:text-gray-400 transition">
+            <a href="#contact" className="block text-sm hover:text-gray-600 transition">
               Contact
             </a>
           </div>
@@ -116,21 +116,21 @@ export function PremiumEcommerceTemplate({
             <img
               src={siteData.heroBackgroundImage}
               alt="Hero"
-              className="w-full h-full object-cover opacity-30"
+              className="w-full h-full object-cover opacity-40"
               style={{ transform: `translateY(${scrollY * 0.5}px)` }}
             />
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-gray-900 via-black to-gray-900" />
+            <div className="w-full h-full bg-gradient-to-br from-white via-gray-100 to-white" />
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black opacity-60" />
+          <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-white opacity-60" />
 
-          {/* Animated orbs */}
+          {/* Animated orbs - softer for light theme */}
           <div
-            className="absolute top-20 left-10 w-72 h-72 rounded-full blur-3xl opacity-20 animate-pulse"
+            className="absolute top-20 left-10 w-72 h-72 rounded-full blur-3xl opacity-12 animate-pulse"
             style={{ backgroundColor: primaryColor }}
           />
           <div
-            className="absolute bottom-20 right-10 w-72 h-72 rounded-full blur-3xl opacity-20 animate-pulse"
+            className="absolute bottom-20 right-10 w-72 h-72 rounded-full blur-3xl opacity-12 animate-pulse"
             style={{ backgroundColor: accentColor }}
           />
         </div>
@@ -147,7 +147,7 @@ export function PremiumEcommerceTemplate({
             <h1 className="text-6xl md:text-7xl font-bold tracking-tight leading-tight">
               {siteData.heroSlogan || "Bienvenue au futur"}
             </h1>
-            <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
               {siteData.aboutStory || "Découvrez notre collection ultramoderne et premium"}
             </p>
           </div>
@@ -155,12 +155,12 @@ export function PremiumEcommerceTemplate({
           <div className="flex gap-4 justify-center flex-wrap pt-8">
             <button
               style={{ backgroundColor: primaryColor }}
-              className="px-8 py-3 rounded-lg font-semibold text-white hover:opacity-90 transition group flex items-center gap-2"
+              className="px-8 py-3 rounded-lg font-semibold text-white hover:opacity-90 transition group flex items-center gap-2 shadow"
             >
               Découvrir
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition" />
             </button>
-            <button className="px-8 py-3 rounded-lg font-semibold border border-white/30 text-white hover:bg-white/5 transition">
+            <button className="px-8 py-3 rounded-lg font-semibold border border-gray-200 text-gray-700 hover:bg-gray-50 transition">
               En savoir plus
             </button>
           </div>
@@ -191,7 +191,7 @@ export function PremiumEcommerceTemplate({
                 key={idx}
                 onMouseEnter={() => setHoveredProduct(idx)}
                 onMouseLeave={() => setHoveredProduct(null)}
-                className="group relative overflow-hidden rounded-2xl backdrop-blur-md bg-white/5 border border-white/10 hover:border-white/30 transition-all duration-500"
+                className="group relative overflow-hidden rounded-2xl bg-white shadow-sm border border-gray-100 hover:shadow-md transition-all duration-500"
               >
                 {/* Glassmorphism background */}
                 <div
@@ -217,16 +217,16 @@ export function PremiumEcommerceTemplate({
                       }}
                     />
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-white/80 via-transparent to-transparent opacity-0 group-hover:opacity-40 transition-opacity duration-500" />
                 </div>
 
                 {/* Content */}
-                <div className="relative p-6 space-y-4">
+                  <div className="relative p-6 space-y-4">
                   <div>
-                    <h3 className="text-xl font-bold mb-2 group-hover:text-gray-300 transition">
+                    <h3 className="text-xl font-bold mb-2 group-hover:text-gray-800 transition">
                       {product.title}
                     </h3>
-                    <p className="text-sm text-gray-400 line-clamp-2">
+                    <p className="text-sm text-gray-600 line-clamp-2">
                       {product.description || "Produit premium de qualité supérieure"}
                     </p>
                   </div>
@@ -235,17 +235,17 @@ export function PremiumEcommerceTemplate({
                     <div>
                       {product.price && (
                         <p className="text-2xl font-bold">
-                          {product.price} <span className="text-sm text-gray-400">{product.currency || "XOF"}</span>
+                          {product.price} <span className="text-sm text-gray-500">{product.currency || "XOF"}</span>
                         </p>
                       )}
                     </div>
                     <button
                       style={{
-                        backgroundColor: hoveredProduct === idx ? primaryColor : "rgba(255,255,255,0.1)",
+                        backgroundColor: hoveredProduct === idx ? primaryColor : "rgba(0,0,0,0.06)",
                       }}
                       className="p-3 rounded-full transition-all duration-300 hover:scale-110"
                     >
-                      <ShoppingCart className="w-5 h-5" />
+                      <ShoppingCart className="w-5 h-5 text-white" />
                     </button>
                   </div>
 
@@ -272,7 +272,7 @@ export function PremiumEcommerceTemplate({
       </section>
 
       {/* À Propos Section */}
-      <section id="about" className="py-20 px-4 bg-gradient-to-b from-transparent via-white/5 to-transparent relative scroll-mt-20">
+      <section id="about" className="py-20 px-4 bg-gradient-to-b from-transparent via-gray-50 to-transparent relative scroll-mt-20">
         <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <div className="space-y-6">
             <p className="text-sm font-semibold uppercase tracking-widest" style={{ color: primaryColor }}>
@@ -312,7 +312,7 @@ export function PremiumEcommerceTemplate({
                 }}
               />
             )}
-            <div className="absolute inset-0 bg-gradient-to-tr from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="absolute inset-0 bg-gradient-to-tr from-white/60 via-transparent to-transparent opacity-0 group-hover:opacity-60 transition-opacity duration-500" />
           </div>
         </div>
       </section>
@@ -352,15 +352,15 @@ export function PremiumEcommerceTemplate({
             ].map((testimonial, idx) => (
               <div
                 key={idx}
-                className="p-6 rounded-2xl backdrop-blur-md bg-white/5 border border-white/10 hover:border-white/30 hover:bg-white/10 transition-all duration-500 group"
+                className="p-6 rounded-2xl bg-white shadow-sm border border-gray-100 hover:shadow-md transition-all duration-500 group"
               >
                 <div className="flex gap-1 mb-4">
                   {[...Array(testimonial.rating)].map((_, i) => (
                     <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                   ))}
                 </div>
-                <p className="text-gray-300 mb-4 italic">&quot;{testimonial.text}&quot;</p>
-                <p className="font-semibold">{testimonial.name}</p>
+                <p className="text-gray-600 mb-4 italic">&quot;{testimonial.text}&quot;</p>
+                <p className="font-semibold text-gray-800">{testimonial.name}</p>
               </div>
             ))}
           </div>
@@ -395,7 +395,7 @@ export function PremiumEcommerceTemplate({
       </section>
 
       {/* Footer Premium */}
-      <footer className="border-t border-white/10 bg-black/50 backdrop-blur-md">
+      <footer className="border-t border-gray-200 bg-white">
         <div className="max-w-7xl mx-auto px-4 py-16">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
             <div className="space-y-4">
@@ -471,13 +471,13 @@ export function PremiumEcommerceTemplate({
             </div>
           </div>
 
-          <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-400">
-            <p>&copy; 2025 {siteData.publicName || "Premium Store"}. Tous droits réservés.</p>
+          <div className="border-t border-gray-100 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-500">
+            <p className="text-gray-600">&copy; 2025 {siteData.publicName || "Premium Store"}. Tous droits réservés.</p>
             <div className="flex gap-4">
-              <a href="#" className="hover:text-white transition">
+              <a href="#" className="hover:text-gray-800 transition">
                 Conditions
               </a>
-              <a href="#" className="hover:text-white transition">
+              <a href="#" className="hover:text-gray-800 transition">
                 Confidentialité
               </a>
             </div>
@@ -521,16 +521,16 @@ export function PremiumEcommerceTemplate({
         }
 
         ::-webkit-scrollbar-track {
-          background: rgba(255, 255, 255, 0.05);
+          background: rgba(0, 0, 0, 0.03);
         }
 
         ::-webkit-scrollbar-thumb {
-          background: rgba(255, 255, 255, 0.2);
+          background: rgba(0, 0, 0, 0.2);
           border-radius: 4px;
         }
 
         ::-webkit-scrollbar-thumb:hover {
-          background: rgba(255, 255, 255, 0.3);
+          background: rgba(0, 0, 0, 0.3);
         }
       `}</style>
     </div>
