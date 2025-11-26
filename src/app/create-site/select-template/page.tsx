@@ -46,6 +46,8 @@ export default function SelectTemplatePage() {
     },
   ];
 
+  const allowedTemplates = new Set(['ecommerce','artisan-ecommerce']);
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-muted py-12 px-4">
       <div className="max-w-4xl mx-auto text-center mb-8 md:mb-12"> {/* Adjusted mb for mobile */}
@@ -71,13 +73,19 @@ export default function SelectTemplatePage() {
               <div className="relative w-full h-32 rounded-md overflow-hidden mb-4">
                 <img src={template.image} alt={template.name} className="w-full h-full object-cover" />
               </div>
-              <Link href={`/create-site?templateType=${template.id}`} passHref>
-                <Button asChild className="w-full text-sm">
-                  <div>
-                    Sélectionner
-                  </div>
-                </Button>
-              </Link>
+              {allowedTemplates.has(template.id) ? (
+                <Link href={`/create-site?templateType=${template.id}`} passHref>
+                  <Button asChild className="w-full text-sm">
+                    <div> Sélectionner </div>
+                  </Button>
+                </Link>
+              ) : (
+                <Link href={`/create-site/maintenance?template=${template.id}`} passHref>
+                  <Button asChild className="w-full text-sm">
+                    <div> En savoir plus </div>
+                  </Button>
+                </Link>
+              )}
             </CardContent>
           </Card>
         ))}

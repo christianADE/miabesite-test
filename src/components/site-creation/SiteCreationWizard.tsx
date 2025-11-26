@@ -421,49 +421,36 @@ export function SiteCreationWizard({ initialSiteData }: SiteCreationWizardProps)
         // Keep other fields present in data (deliveryZones, whatsappOrderMessage, etc.)
       } as unknown as SiteEditorFormData;
 
-      if (initialSiteData?.id) {
-        // Update existing site
-        const { error: updateError } = await supabase
-          .from('sites')
-          .update({
-            subdomain: siteIdentifier, // This is correct, updating the top-level column
-            site_data: siteDataToSave,
-            template_type: data.templateType, // Update template type
-          })
-          .eq('id', initialSiteData.id)
-          .eq('user_id', user.id); // Corrected to user_id
+      // Send site data to server-side API to create/update the site (server will enforce limits and uniqueness)
+      const payload = {
+        siteData: siteDataToSave,
+        id: initialSiteData?.id,
+        subdomain: siteIdentifier,
+      };
 
-        if (updateError) {
-          toast.error(`Erreur lors de la mise à jour du site: ${updateError.message}`);
-          return;
-        }
-        toast.success("Votre site a été mis à jour avec succès ! Vous serez redirigé sous peu.");
-      } else {
-        // Insert new site
-        const { error: insertError } = await supabase
-          .from('sites')
-          .insert({
-            user_id: user.id,
-            subdomain: siteIdentifier, // Use the generated unique identifier
-            site_data: siteDataToSave,
-            status: 'published', // Default status
-            template_type: data.templateType, // Use the templateType from form data
-          });
+      const res = await fetch('/api/sites', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
 
-        if (insertError) {
-          // Check for unique constraint error on subdomain (should be handled by generation loop, but as a fallback)
-          if (insertError.code === '23505') { // PostgreSQL unique violation error code
-            toast.error(`L'identifiant "${siteIdentifier}" est déjà pris. Veuillez réessayer.`);
-          } else {
-            toast.error(`Erreur lors de la création du site: ${insertError.message}`);
-          }
-          return;
-        }
-        toast.success("Votre site est en cours de création ! Vous serez redirigé sous peu.");
+      const result = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        console.error('Server site create/update error:', result);
+        toast.error(result.error || 'Erreur lors de la création/mise à jour du site.');
+        return;
       }
 
-      router.push(`/sites/${siteIdentifier}`); // Redirect to the new site's public page
-      router.refresh(); // Refresh to update data
+      const newSubdomain = result.subdomain || siteIdentifier;
+      if (result.id && initialSiteData?.id) {
+        toast.success('Votre site a été mis à jour avec succès !');
+      } else {
+        toast.success('Votre site est en cours de création !');
+      }
+
+      router.push(`/sites/${newSubdomain}`);
+      router.refresh();
     } catch (error: any) {
       console.error("Site creation/update error:", error);
       toast.error(`Une erreur est survenue: ${error.message || "Impossible de créer/mettre à jour le site."}`);
