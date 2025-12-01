@@ -7,12 +7,6 @@ import { SupabaseClient } from '@supabase/supabase-js'; // Import SupabaseClient
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
-if (!GEMINI_API_KEY) {
-  console.error("GEMINI_API_KEY n'est pas définie dans les variables d'environnement.");
-}
-
-const genAI = GEMINI_API_KEY ? new GoogleGenerativeAI(GEMINI_API_KEY) : null;
-
 /**
  * Helper function to fetch, update, and save site_data in Supabase.
  * Ensures user ownership and handles JSONB merging.
@@ -64,6 +58,9 @@ async function updateSiteData(
 export async function POST(request: Request) {
   const supabase = createClient();
 
+  // Initialize genAI here to ensure GEMINI_API_KEY is checked at runtime
+  const genAI = GEMINI_API_KEY ? new GoogleGenerativeAI(GEMINI_API_KEY) : null;
+
   try {
     const { message, history, current_site_subdomain, tool_code, tool_args } = await request.json(); // Added tool_code and tool_args
 
@@ -72,7 +69,8 @@ export async function POST(request: Request) {
     }
 
     if (!genAI) {
-      return NextResponse.json({ error: 'L\'API Gemini n\'est pas configurée. Veuillez vérifier la clé API.' }, { status: 500 });
+      console.error("GEMINI_API_KEY est manquante ou invalide. L'API Gemini n'est pas configurée.");
+      return NextResponse.json({ error: 'L\'API Gemini n\'est pas configurée. Veuillez vérifier la clé API dans vos variables d\'environnement.' }, { status: 500 });
     }
 
     const systemInstruction = `
@@ -226,7 +224,7 @@ export async function POST(request: Request) {
 
         if (!apiResponse.ok) {
           const errorData = await apiResponse.json();
-          console.error(`Error fetching stats for ${subdomain}:`, apiResponse.status, errorData);
+          console.error(`Error fetching stats for ${subdomain}: Status ${apiResponse.status}, Error:`, errorData);
           return NextResponse.json({
             response: `Désolé, je n'ai pas pu récupérer les statistiques pour le site "${subdomain}". ${errorData.error || 'Veuillez vérifier le sous-domaine et réessayer.'}`,
             tool_code: "API_ERROR"
