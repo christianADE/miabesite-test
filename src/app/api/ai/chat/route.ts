@@ -166,7 +166,7 @@ export async function POST(request: Request) {
     if (tool_code === "generate_rewritten_text" && tool_args) {
       // If it's a direct tool call from the frontend for rewriting text
       const { current_text, field_name, subdomain } = tool_args;
-      const rewritePrompt = `Réécris le texte suivant pour le champ "${field_name}" du site "${subdomain || 'non spécifié'}" afin de le rendre plus accrocheur, vendeur et marketing. Le texte original est : "${current_text}". Ne réponds qu'avec le nouveau texte réécrit, sans préambule ni fioritures.`;
+      const rewritePrompt = `Réécris le texte suivant pour le champ "${field_name}" du site "${subdomain || 'non spécifié'}" afin de le rendre plus esthétique, plus marketing et plus vivant. Garde le contexte et l'âme du texte original. Le texte original est : "${current_text}". Ne réponds qu'avec le nouveau texte réécrit, sans préambule ni fioritures.`;
       response = await chat.sendMessage(rewritePrompt);
     } else {
       // Normal chat message
@@ -254,7 +254,7 @@ export async function POST(request: Request) {
 
       } else if (functionCall.name === "generate_rewritten_text") {
         const { current_text, field_name, subdomain } = functionCall.args as { current_text: string; field_name: string; subdomain?: string; };
-        const rewritePrompt = `Réécris le texte suivant pour le champ "${field_name}" du site "${subdomain || 'non spécifié'}" afin de le rendre plus accrocheur, vendeur et marketing. Le texte original est : "${current_text}". Ne réponds qu'avec le nouveau texte réécrit, sans préambule ni fioritures.`;
+        const rewritePrompt = `Réécris le texte suivant pour le champ "${field_name}" du site "${subdomain || 'non spécifié'}" afin de le rendre plus esthétique, plus marketing et plus vivant. Garde le contexte et l'âme du texte original. Le texte original est : "${current_text}". Ne réponds qu'avec le nouveau texte réécrit, sans préambule ni fioritures.`;
         const rewriteResponse = await chat.sendMessage(rewritePrompt);
         // Access text from the response object
         const rewrittenText = rewriteResponse.response.candidates?.[0]?.content?.parts?.[0]?.text;
