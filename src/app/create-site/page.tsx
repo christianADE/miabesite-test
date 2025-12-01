@@ -29,7 +29,8 @@ export default async function CreateSitePage({ searchParams }: CreateSitePagePro
   const templateTypeFromUrl = searchParams.templateType;
   const supabase = createClient();
 
-  const allowedTemplates = new Set(['ecommerce','artisan-ecommerce']);
+  // La liste des templates autorisés est maintenant gérée dans select-template/page.tsx
+  // et la redirection vers la page de maintenance est supprimée ici.
 
   const { data: { user }, error: authError } = await supabase.auth.getUser();
 
@@ -60,11 +61,8 @@ export default async function CreateSitePage({ searchParams }: CreateSitePagePro
       redirect('/dashboard/sites?message=Site non trouvé ou non autorisé.');
     }
   } else if (templateTypeFromUrl) {
-    // Redirect to maintenance if template is not supported for now
-    if (!allowedTemplates.has(templateTypeFromUrl)) {
-      redirect(`/create-site/maintenance?template=${templateTypeFromUrl}`);
-    }
-    // If no subdomain, but templateType is provided, initialize with templateType
+    // La redirection vers la page de maintenance est supprimée.
+    // Tous les templates sont considérés comme fonctionnels à ce stade.
     initialSiteData = {
       templateType: templateTypeFromUrl,
       // Set default values for new fields if not provided by initialSiteData

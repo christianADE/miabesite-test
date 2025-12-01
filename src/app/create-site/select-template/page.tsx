@@ -46,28 +46,28 @@ export default function SelectTemplatePage() {
     },
   ];
 
-  // For now only the simple ecommerce flow is supported; artisanal ecommerce is under maintenance
-  const allowedTemplates = new Set(['ecommerce']);
+  // Tous les templates sont maintenant autorisés
+  const allowedTemplates = new Set(templates.map(t => t.id));
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-muted py-12 px-4">
-      <div className="max-w-4xl mx-auto text-center mb-8 md:mb-12"> {/* Adjusted mb for mobile */}
-        <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl mb-4"> {/* Adjusted text size for mobile */}
+      <div className="max-w-4xl mx-auto text-center mb-8 md:mb-12">
+        <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl mb-4">
           Choisissez votre Template
         </h1>
-        <p className="text-base md:text-lg text-muted-foreground"> {/* Adjusted text size for mobile */}
+        <p className="text-base md:text-lg text-muted-foreground">
           Sélectionnez le modèle qui correspond le mieux à votre activité. Vous pourrez le personnaliser par la suite.
         </p>
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 w-full max-w-6xl">
         {templates.map((template) => (
-          <Card key={template.id} className="flex flex-col items-center p-4 md:p-6 text-center shadow-md hover:shadow-lg transition-shadow duration-300"> {/* Adjusted padding for mobile */}
+          <Card key={template.id} className="flex flex-col items-center p-4 md:p-6 text-center shadow-md hover:shadow-lg transition-shadow duration-300">
             <CardHeader className="pb-4">
               <div className="flex items-center justify-center mb-4">
                 {template.icon}
               </div>
-              <CardTitle className="text-lg md:text-xl font-semibold">{template.name}</CardTitle> {/* Adjusted text size for mobile */}
+              <CardTitle className="text-lg md:text-xl font-semibold">{template.name}</CardTitle>
             </CardHeader>
             <CardContent className="flex-1 flex flex-col justify-between p-0">
               <p className="text-muted-foreground text-sm mb-4">{template.description}</p>
@@ -81,6 +81,7 @@ export default function SelectTemplatePage() {
                   </Button>
                 </Link>
               ) : (
+                // Ce bloc ne devrait plus être atteint si tous les templates sont dans allowedTemplates
                 <Link href={`/create-site/maintenance?template=${template.id}`} passHref>
                   <Button asChild className="w-full text-sm">
                     <div> En savoir plus </div>
