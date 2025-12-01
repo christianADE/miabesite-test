@@ -597,8 +597,8 @@ export function EcommerceTemplate({ siteData, subdomain }: EcommerceTemplateProp
             <h2 className={cn("text-3xl md:text-4xl font-bold text-center mb-8 md:mb-12", primaryColorTextClass)} id="about-section-title">À Propos de {siteData.publicName}</h2>
             <div className="flex flex-col md:flex-row gap-8 items-center">
               <div className="md:w-1/2" id="about-text-content">
-                <p className="text-gray-700 text-base mb-4" id="about-paragraph-1">{siteData.aboutStory || "Notre mission est de vous offrir une sélection rigoureuse de produits de qualité. Nous nous engageons à un service client irréprochable et une expérience d'achat en ligne fluide et agréable."}</p>
-                <p className="text-gray-700 text-base mb-4" id="about-paragraph-2">{siteData.aboutStory || "Chaque achat est une promesse de satisfaction et de durabilité. Découvrez la différence avec notre e-commerce."}</p>
+                <p className="text-gray-700 text-base mb-4" id="about-paragraph-1">{siteData.aboutStory || "Notre mission est de vous offrir une sélection rigoureuse de produits de qualité. Nous nous engagons à un service client irréprochable et une expérience d'achat en ligne fluide et agréable."}</p>
+                <p className="text-gray-700 text-base mb-4" id="about-paragraph-2">{(siteData.aboutStory && siteData.aboutStory.length > 150) ? siteData.aboutStory.substring(150) : "Chaque achat est une promesse de satisfaction et de durabilité. Découvrez la différence avec notre e-commerce."}</p>
                 {/* Liste de points clés basés sur skillsToDisplay si showSkills est false, sinon on affiche un bouton */}
                 {skillsToDisplay.length > 0 && (
                     <Link 
