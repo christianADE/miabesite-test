@@ -94,7 +94,7 @@ const config: Config = {
       },
   	}
   },
-  plugins: [],
+  plugins: [require("tailwindcss-animate")],
   // Add safelist to ensure dynamic color classes are generated
   safelist: [
     {
