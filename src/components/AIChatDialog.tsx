@@ -145,7 +145,8 @@ export function AIChatDialog({ isOpen, onClose }: AIChatDialogProps) {
       });
 
       if (!response.ok) {
-        throw new Error('Erreur de l\'IA : ' + response.statusText);
+        const errorData = await response.json(); // Parse error response
+        throw new Error(errorData.error || 'Erreur de l\'IA : ' + response.statusText);
       }
 
       const data = await response.json();
@@ -153,8 +154,8 @@ export function AIChatDialog({ isOpen, onClose }: AIChatDialogProps) {
       setMessages((prev) => [...prev, aiMessage]);
     } catch (error: any) {
       console.error('Erreur lors de la communication avec l\'IA:', error);
-      toast.error('Impossible de contacter l\'IA. Veuillez réessayer.');
-      const errorMessage: Message = { id: (Date.now() + 1).toString(), sender: 'ai', text: "Désolé, une erreur est survenue. Veuillez réessayer." };
+      toast.error(error.message || 'Impossible de contacter l\'IA. Veuillez réessayer.');
+      const errorMessage: Message = { id: (Date.now() + 1).toString(), sender: 'ai', text: error.message || "Désolé, une erreur est survenue. Veuillez réessayer." };
       setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
