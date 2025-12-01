@@ -10,6 +10,7 @@ export const siteEditorFormSchema = z.object({
   secondaryColor: z.string().min(1, "Veuillez sélectionner une couleur secondaire."),
   logoOrPhoto: z.any().optional(), // File object or URL string
   businessLocation: z.string().min(3, "La localisation de l'entreprise est requise.").max(100, "La localisation ne peut pas dépasser 100 caractères."),
+  defaultCurrency: z.string().optional(), // Added: Site-wide default currency
 
   // New fields for user profile (can be used in site data if desired, or just for user metadata)
   firstName: z.string().min(2, "Le prénom est requis.").max(50, "Le prénom ne peut pas dépasser 50 caractères.").optional(),
@@ -20,6 +21,7 @@ export const siteEditorFormSchema = z.object({
   heroSlogan: z.string().min(10, "Le slogan est requis.").max(100, "Le slogan ne peut pas dépasser 100 caractères."),
   aboutStory: z.string().min(50, "Votre histoire/mission est requise.").max(500, "Votre histoire/mission ne peut pas dépasser 500 caractères."),
   heroBackgroundImage: z.any().optional(), // File object or URL string
+  aboutImage: z.any().optional(), // Added: Dedicated image for the 'About' section
 
   // Products & Services
   productsAndServices: z.array(z.object({
@@ -32,6 +34,7 @@ export const siteEditorFormSchema = z.object({
     description: z.string().min(10, "La description est requise.").max(300, "La description ne peut pas dépasser 300 caractères."),
     image: z.any().optional(), // File object or URL string
     actionButton: z.string().min(1, "L'action du bouton est requise."),
+    icon: z.string().optional(), // Added: Icon for services
   })).max(5, "Vous ne pouvez ajouter que 5 produits/services maximum."), // Increased max to 5 for more customization
 
   // Testimonials
@@ -100,6 +103,7 @@ export const ecommerceWizardSchema = z.object({
     stock: z.preprocess((val: unknown) => (val === '' ? undefined : val), z.coerce.number().min(0).optional()),
     variants: z.array(z.string()).max(5).optional(),
     actionButton: z.string().optional().or(z.literal('')),
+    icon: z.string().optional(), // Added for consistency
   })).max(10).optional(),
   contactButtonAction: z.string().optional().or(z.literal('')),
   facebookLink: z.string().url().optional().or(z.literal('')),
@@ -114,6 +118,7 @@ export const ecommerceWizardSchema = z.object({
   openingHours: z.string().optional().or(z.literal('')),
   returnPolicy: z.string().optional().or(z.literal('')),
   templateType: z.string().optional(),
+  defaultCurrency: z.string().optional(), // Added for consistency
 });
 
 export type SiteEditorFormData = z.infer<typeof siteEditorFormSchema>;

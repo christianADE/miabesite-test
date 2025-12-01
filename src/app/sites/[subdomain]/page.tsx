@@ -3,19 +3,11 @@ import { notFound, redirect } from 'next/navigation';
 import React from 'react';
 import { DefaultTemplate } from '@/components/site-templates/DefaultTemplate';
 import { EcommerceTemplate } from '@/components/site-templates/EcommerceTemplate';
-import { ServicePortfolioTemplate } from '@/components/site-templates/ServicePortfolioTemplate';
-import { ProfessionalPortfolioTemplate } from '@/components/site-templates/ProfessionalPortfolioTemplate';
-import { ArtisanEcommerceTemplate } from '@/components/site-templates/ArtisanEcommerceTemplate';
-import { PremiumEcommerceTemplate } from '@/components/site-templates/PremiumEcommerceTemplate';
+import { ServiceProfessionalTemplate } from '@/components/site-templates/ServiceProfessionalTemplate'; // Updated import
 import { SiteEditorFormData } from '@/lib/schemas/site-editor-form-schema';
 import type { Metadata } from 'next';
 import { TrackSiteVisit } from '@/components/TrackSiteVisit'; // Import the new component
 import { getSupabaseStorageUrl } from '@/lib/utils'; // Import getSupabaseStorageUrl
-
-// Removed the PageProps interface as it's now inlined
-// interface PageProps {
-//   params: { subdomain: string };
-// }
 
 // Function to generate dynamic metadata
 export async function generateMetadata({ params }: { params: { subdomain: string } }): Promise<Metadata> {
@@ -110,12 +102,11 @@ export default async function DynamicSitePage({ params }: { params: { subdomain:
   const TemplateComponent = (() => {
     switch (templateType) {
       case 'ecommerce':
-        return PremiumEcommerceTemplate;
+      case 'artisan-ecommerce': // Both use the consolidated EcommerceTemplate
+        return EcommerceTemplate;
       case 'service-portfolio':
-        return ServicePortfolioTemplate;
-      case 'professional-portfolio':
-      case 'artisan-ecommerce':
-        return ProfessionalPortfolioTemplate;
+      case 'professional-portfolio': // Both use the consolidated ServiceProfessionalTemplate
+        return ServiceProfessionalTemplate;
       case 'default':
       default:
         return DefaultTemplate;

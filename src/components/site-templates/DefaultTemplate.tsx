@@ -1,14 +1,23 @@
 "use client";
 
 import React from 'react';
-import Link from 'next/link';
-import { MessageSquare, MapPin, Star, Wrench, Phone, Mail, User, Check, Briefcase, Hammer, PaintRoller, Palette, PencilRuler, StarHalf, CheckCircle, Menu, X, ChevronUp } from 'lucide-react'; // Added all potentially used icons
-import { cn } from '@/lib/utils';
 import Image from 'next/image';
+import Link from 'next/link';
+import {
+  MessageSquare,
+  Phone,
+  Mail,
+  MapPin,
+  ChevronUp,
+  Menu,
+  X,
+  Facebook,
+  Instagram,
+  Linkedin,
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 import { SiteEditorFormData } from '@/lib/schemas/site-editor-form-schema';
-import { toast } from 'sonner'; // Import toast for notifications
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'; // Import Sheet components
-import { Button } from "@/components/ui/button"; // Import Button
 
 interface DefaultTemplateProps {
   siteData: SiteEditorFormData;
@@ -16,6 +25,9 @@ interface DefaultTemplateProps {
 }
 
 export function DefaultTemplate({ siteData, subdomain }: DefaultTemplateProps) {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+  const [showBackToTop, setShowBackToTop] = React.useState(false);
+
   const [formData, setFormData] = React.useState({
     name: '',
     phone: '',
@@ -24,15 +36,15 @@ export function DefaultTemplate({ siteData, subdomain }: DefaultTemplateProps) {
     message: '',
   });
   const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
-  const [showBackToTop, setShowBackToTop] = React.useState(false);
-
 
   const primaryColorClass = `bg-${siteData.primaryColor}-600`;
   const primaryColorTextClass = `text-${siteData.primaryColor}-600`;
+  const primaryColorHoverBgClass = `hover:bg-${siteData.primaryColor}-700`;
+  const primaryColorDarkBgClass = `bg-${siteData.primaryColor}-800`;
+
   const secondaryColorClass = `bg-${siteData.secondaryColor}-500`;
   const secondaryColorTextClass = `text-${siteData.secondaryColor}-500`;
-  const secondaryColorHoverBgClass = `hover:bg-${siteData.secondaryColor}-600`; // Defined here
+  const secondaryColorHoverBgClass = `hover:bg-${siteData.secondaryColor}-600`;
 
   const sectionsVisibility = siteData.sectionsVisibility || {
     showHero: true,
@@ -45,13 +57,8 @@ export function DefaultTemplate({ siteData, subdomain }: DefaultTemplateProps) {
 
   React.useEffect(() => {
     const handleScroll = () => {
-      if (window.pageYOffset > 300) {
-        setShowBackToTop(true);
-      } else {
-        setShowBackToTop(false);
-      }
+      setShowBackToTop(window.pageYOffset > 300);
     };
-
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -60,12 +67,12 @@ export function DefaultTemplate({ siteData, subdomain }: DefaultTemplateProps) {
     e.preventDefault();
     const targetElement = document.querySelector(targetId);
     if (targetElement) {
-      const offset = 80; // Adjust offset as needed for fixed header
+      const offset = 80;
       window.scrollTo({
         top: targetElement.getBoundingClientRect().top + window.pageYOffset - offset,
         behavior: 'smooth',
       });
-      setIsMobileMenuOpen(false); // Close mobile menu after clicking a link
+      setIsMobileMenuOpen(false);
     }
   };
 
@@ -87,7 +94,7 @@ export function DefaultTemplate({ siteData, subdomain }: DefaultTemplateProps) {
           sender_name: formData.name,
           sender_email: formData.email,
           sender_phone: formData.phone,
-          service_interested: formData.service,
+          service_interested: formData.service || "Demande de contact général",
           message: formData.message,
         }),
       });
@@ -97,8 +104,8 @@ export function DefaultTemplate({ siteData, subdomain }: DefaultTemplateProps) {
       if (!response.ok) {
         toast.error(result.error || "Erreur lors de l'envoi du message.");
       } else {
-        toast.success("Message envoyé avec succès ! Nous vous recontacterons bientôt.");
-        setFormData({ name: '', phone: '', email: '', service: '', message: '' }); // Clear form
+        toast.success("Votre message a été envoyé ! Nous vous recontacterons bientôt.");
+        setFormData({ name: '', phone: '', email: '', service: '', message: '' });
       }
     } catch (error) {
       console.error("Failed to submit contact form:", error);
@@ -108,265 +115,246 @@ export function DefaultTemplate({ siteData, subdomain }: DefaultTemplateProps) {
     }
   };
 
-  const productsAndServicesToDisplay = siteData.productsAndServices || [];
-  const testimonialsToDisplay = siteData.testimonials || [];
-  const skillsToDisplay = siteData.skills || [];
-
-  // Helper to get Lucide icon component by name
-  const getLucideIcon = (iconName: string) => {
-    const icons: { [key: string]: React.ElementType } = {
-      MessageSquare, MapPin, Star, Wrench, Phone, Mail, User, Check, Briefcase, Hammer, PaintRoller, Palette, PencilRuler, StarHalf, CheckCircle
-    };
-    return icons[iconName] || Wrench; // Default to Wrench if not found
-  };
-
-  const navLinks = (
-    <>
-      {sectionsVisibility.showHero && <a href="#accueil" onClick={(e) => handleSmoothScroll(e, '#accueil')} className="text-gray-700 font-medium hover:text-blue-600 transition-colors w-full text-center py-2 text-base">Accueil</a>}
-      {sectionsVisibility.showAbout && <a href="#apropos" onClick={(e) => handleSmoothScroll(e, '#apropos')} className="text-gray-700 font-medium hover:text-blue-600 transition-colors w-full text-center py-2 text-base">À Propos</a>}
-      {sectionsVisibility.showProductsServices && productsAndServicesToDisplay.length > 0 && <a href="#offres" onClick={(e) => handleSmoothScroll(e, '#offres')} className="text-gray-700 font-medium hover:text-blue-600 transition-colors w-full text-center py-2 text-base">Nos Offres</a>}
-      {sectionsVisibility.showTestimonials && testimonialsToDisplay.length > 0 && <a href="#temoignages" onClick={(e) => handleSmoothScroll(e, '#temoignages')} className="text-gray-700 font-medium hover:text-blue-600 transition-colors w-full text-center py-2 text-base">Témoignages</a>}
-      {sectionsVisibility.showSkills && skillsToDisplay.length > 0 && <a href="#competences" onClick={(e) => handleSmoothScroll(e, '#competences')} className="text-gray-700 font-medium hover:text-blue-600 transition-colors w-full text-center py-2 text-base">Compétences</a>}
-      {sectionsVisibility.showContact && <a href="#contact" onClick={(e) => handleSmoothScroll(e, '#contact')} className="text-gray-700 font-medium hover:text-blue-600 transition-colors w-full text-center py-2 text-base">Contact</a>}
-    </>
-  );
-
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 text-center">
+    <div className="font-sans antialiased text-gray-800 bg-white overflow-x-hidden" id="default-template-root">
       {/* Header */}
-      <header className="sticky top-0 z-50 w-full bg-white shadow-lg">
-        <div className="container mx-auto px-4 md:px-6">
+      <header className="bg-white shadow-lg sticky top-0 z-50" id="main-header">
+        <div className="container mx-auto px-4 md:px-6 max-w-7xl">
           <nav className="flex justify-between items-center py-4">
-            <div className="flex items-center gap-2">
-              {siteData.logoOrPhoto && (
+            <div className="flex items-center gap-3" id="logo-area">
+              {siteData.logoOrPhoto ? (
                 <Image src={siteData.logoOrPhoto} alt={`${siteData.publicName} Logo`} width={40} height={40} className="rounded-full object-cover" />
+              ) : (
+                <div className={cn("h-10 w-10 rounded-full flex items-center justify-center text-white text-xl", primaryColorClass)} id="default-logo">
+                  {siteData.publicName ? siteData.publicName.charAt(0) : 'D'}
+                </div>
               )}
-              <h1 className={cn("text-lg font-bold", primaryColorTextClass)}>
-                {siteData.publicName}
-              </h1>
+              <h1 className={cn("text-xl font-bold", secondaryColorTextClass)} id="site-name-header">{siteData.publicName}</h1>
             </div>
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center gap-6">
-              {navLinks}
+
+            {/* Desktop Menu */}
+            <div className="hidden md:flex items-center gap-6" id="desktop-nav-menu">
+              {sectionsVisibility.showAbout && <a href="#about" onClick={(e) => handleSmoothScroll(e, '#about')} className="text-gray-700 font-medium hover:text-blue-600 transition-colors">À Propos</a>}
+              {sectionsVisibility.showProductsServices && siteData.productsAndServices && siteData.productsAndServices.length > 0 && <a href="#services" onClick={(e) => handleSmoothScroll(e, '#services')} className="text-gray-700 font-medium hover:text-blue-600 transition-colors">Services</a>}
+              {sectionsVisibility.showContact && <a href="#contact" onClick={(e) => handleSmoothScroll(e, '#contact')} className="text-gray-700 font-medium hover:text-blue-600 transition-colors">Contact</a>}
             </div>
+
             {/* Mobile Menu Toggle */}
-            <div className="md:hidden">
-              <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-                <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <Menu className="h-6 w-6" />
-                    <span className="sr-only">Toggle Menu</span>
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="left" className="p-0 w-64">
-                  <div className="flex flex-col h-full py-4">
-                    <div className="px-6 mb-4">
-                      <h2 className="font-bold text-xl">{siteData.publicName}</h2>
-                    </div>
-                    <nav className="flex flex-col gap-2 px-6 text-base font-medium flex-1">
-                      {navLinks}
-                    </nav>
-                  </div>
-                </SheetContent>
-              </Sheet>
-            </div>
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className={cn("md:hidden p-2 rounded-full text-gray-700 hover:bg-gray-100 transition-colors", primaryColorTextClass)}
+              id="btn-toggle-mobile-menu"
+              aria-label="Menu mobile"
+            >
+              {isMobileMenuOpen ? <X /> : <Menu />}
+            </button>
           </nav>
         </div>
+
+        {/* Mobile Menu Overlay */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden absolute top-full left-0 right-0 bg-white shadow-xl py-4 z-40" id="mobile-menu-overlay">
+            <nav className="flex flex-col items-center gap-4">
+              {sectionsVisibility.showAbout && <a href="#about" onClick={(e) => handleSmoothScroll(e, '#about')} className="text-gray-700 font-medium hover:text-blue-600 transition-colors w-full text-center py-2 text-base">À Propos</a>}
+              {sectionsVisibility.showProductsServices && siteData.productsAndServices && siteData.productsAndServices.length > 0 && <a href="#services" onClick={(e) => handleSmoothScroll(e, '#services')} className="text-gray-700 font-medium hover:text-blue-600 transition-colors w-full text-center py-2 text-base">Services</a>}
+              {sectionsVisibility.showContact && <a href="#contact" onClick={(e) => handleSmoothScroll(e, '#contact')} className="text-gray-700 font-medium hover:text-blue-600 transition-colors w-full text-center py-2 text-base">Contact</a>}
+            </nav>
+          </div>
+        )}
       </header>
 
+      {/* 1. Hero Section */}
       {sectionsVisibility.showHero && (
-        <section id="accueil" className={cn("py-12 md:py-24 lg:py-32 w-full bg-cover bg-center text-white flex flex-col items-center justify-center px-4", `bg-${siteData.primaryColor}-600`)}
-          style={{
-            backgroundImage: siteData.heroBackgroundImage
-              ? `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('${siteData.heroBackgroundImage}')`
-              : undefined // Let Tailwind class handle background color if no image
-          }}
-        >
-          {siteData.logoOrPhoto && (
-            <Image src={siteData.logoOrPhoto} alt={`${siteData.publicName} Logo`} width={80} height={80} className={cn("rounded-full object-cover mb-4", siteData.heroBackgroundImage ? "mx-auto" : "mx-auto")} />
-          )}
-          <h1 className="text-3xl md:text-5xl font-bold mb-4">
-            Bienvenue sur {siteData.publicName}!
-          </h1>
-          <p className="text-base md:text-xl mb-8 max-w-prose">
-            {siteData.heroSlogan || "Votre site est en ligne."}
-          </p>
-          <Link
-            href={`https://wa.me/${siteData.whatsappNumber}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={cn("inline-flex items-center gap-2 px-5 py-2 rounded-lg font-bold text-base text-white transition-all duration-300 ease-in-out transform hover:-translate-y-1 shadow-lg bg-[#25D366] hover:bg-[#128C7E] w-full sm:w-auto")}
-          >
-            <MessageSquare className="h-5 w-5" /> Contactez-nous sur WhatsApp
-          </Link>
-        </section>
-      )}
-
-      {sectionsVisibility.showAbout && siteData.aboutStory && (
-        <section id="apropos" className="py-12 md:py-24 w-full bg-white text-center px-4">
-          <div className="container mx-auto max-w-3xl">
-            <h2 className={cn("text-2xl md:text-3xl font-bold mb-6", primaryColorTextClass)}>À Propos de Nous</h2>
-            <p className="text-base text-gray-700 leading-relaxed">
-              {siteData.aboutStory}
-            </p>
-          </div>
-        </section>
-      )}
-
-      {sectionsVisibility.showProductsServices && productsAndServicesToDisplay.length > 0 && (
-        <section id="offres" className="py-12 md:py-24 w-full bg-gray-50 text-center px-4">
-          <div className="container mx-auto max-w-5xl">
-            <h2 className={cn("text-2xl md:text-3xl font-bold mb-12", primaryColorTextClass)}>Nos Offres</h2>
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {productsAndServicesToDisplay.map((product, index) => (
-                <div key={index} className="bg-white rounded-lg shadow-md p-4 space-y-3">
-                  {product.image && (
-                    <Image src={product.image} alt={product.title} width={120} height={80} className="mx-auto mb-4 object-cover rounded-md" />
-                  )}
-                  <h3 className="text-lg font-semibold text-gray-800">{product.title}</h3>
-                  <p className="text-muted-foreground text-xs">{product.description}</p>
-                  {product.price && (
-                    <p className={cn("text-xl font-bold", secondaryColorTextClass)}>
-                      {product.price} {product.currency}
-                    </p>
-                  )}
-                  <Link
-                    href={`https://wa.me/${siteData.whatsappNumber}?text=Je%20suis%20intéressé%20par%20${product.title}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={cn("inline-flex items-center gap-2 px-3 py-1.5 rounded-lg font-bold text-sm text-white transition-colors duration-300 bg-[#25D366] hover:bg-[#128C7E] w-full")}
-                  >
-                    <MessageSquare className="h-4 w-4" /> {product.actionButton === 'buy' ? 'Acheter' : product.actionButton === 'quote' ? 'Demander un devis' : product.actionButton === 'book' ? 'Réserver' : 'Contacter'}
-                  </Link>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {sectionsVisibility.showTestimonials && testimonialsToDisplay.length > 0 && (
-        <section id="temoignages" className="py-12 md:py-24 w-full bg-white text-center px-4">
-          <div className="container mx-auto max-w-4xl">
-            <h2 className={cn("text-2xl md:text-3xl font-bold mb-12", primaryColorTextClass)}>Ce que nos clients disent</h2>
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {testimonialsToDisplay.map((testimonial, index) => (
-                <div key={index} className="bg-gray-50 rounded-lg shadow-sm p-4 text-left">
-                  <p className="text-base italic text-gray-700 mb-4">"{testimonial.quote}"</p>
-                  <div className="flex items-center gap-3">
-                    {testimonial.avatar && (
-                      <Image src={testimonial.avatar} alt={testimonial.author} width={40} height={40} className="rounded-full object-cover" />
-                    )}
-                    <div>
-                      <p className="font-semibold text-primary text-sm">
-                        – {testimonial.author}, {testimonial.location}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {sectionsVisibility.showSkills && skillsToDisplay.length > 0 && (
-        <section id="competences" className="py-12 md:py-24 w-full bg-gray-50 text-center px-4">
-          <div className="container mx-auto max-w-5xl">
-            <h2 className={cn("text-2xl md:text-3xl font-bold mb-12", primaryColorTextClass)}>Nos Compétences</h2>
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {skillsToDisplay.map((skill, index) => {
-                const IconComponent = skill.icon ? getLucideIcon(skill.icon) : Wrench;
-                return (
-                  <div key={index} className="bg-white rounded-lg shadow-md p-4 space-y-3">
-                    <div className="flex items-center justify-center mb-4"><IconComponent className={cn("h-6 w-6", primaryColorTextClass)} /></div>
-                    <h3 className="text-lg font-semibold text-gray-800">{skill.title}</h3>
-                    <p className="text-muted-foreground text-xs">{skill.description}</p>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {sectionsVisibility.showContact && (
-        <section id="contact" className="py-12 md:py-24 w-full bg-white text-center px-4">
-          <div className="container mx-auto max-w-3xl">
-            <h2 className={cn("text-2xl md:text-3xl font-bold mb-8", primaryColorTextClass)}>Contactez-nous</h2>
-            {siteData.showContactForm ? (
-              <div className="bg-gray-100 p-6 rounded-lg shadow-md">
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div>
-                    <label htmlFor="name" className="block text-gray-700 font-medium mb-1 text-sm">Nom complet</label>
-                    <input type="text" id="name" name="name" required className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" value={formData.name} onChange={handleChange} />
-                  </div>
-                  <div>
-                    <label htmlFor="phone" className="block text-gray-700 font-medium mb-1 text-sm">Téléphone</label>
-                    <input type="tel" id="phone" name="phone" required className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" value={formData.phone} onChange={handleChange} />
-                  </div>
-                  <div>
-                    <label htmlFor="email" className="block text-gray-700 font-medium mb-1 text-sm">Email</label>
-                    <input type="email" id="email" name="email" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" value={formData.email} onChange={handleChange} />
-                  </div>
-                  {productsAndServicesToDisplay.length > 0 && (
-                    <div>
-                      <label htmlFor="service" className="block text-gray-700 font-medium mb-1 text-sm">Service intéressé</label>
-                      <select id="service" name="service" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" value={formData.service} onChange={handleChange}>
-                        <option value="">Sélectionnez un service</option>
-                        {productsAndServicesToDisplay.map((product: any, idx: number) => (
-                          <option key={idx} value={product.title}>{product.title}</option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
-                  <div>
-                    <label htmlFor="message" className="block text-gray-700 font-medium mb-1 text-sm">Message</label>
-                    <textarea id="message" name="message" required className="w-full px-3 py-2 border border-gray-300 rounded-lg min-h-[100px] resize-y focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" value={formData.message} onChange={handleChange}></textarea>
-                  </div>
-                  <button type="submit" className={cn("w-full px-5 py-2 rounded-lg font-bold text-white text-base transition-colors duration-300", primaryColorClass, `hover:bg-${siteData.primaryColor}-700`)} disabled={isSubmitting}>
-                    {isSubmitting ? "Envoi en cours..." : "Envoyer le message"}
-                  </button>
-                </form>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {siteData.whatsappNumber && (
-                  <p className="text-base text-gray-700 flex items-center justify-center gap-2">
-                    <MessageSquare className="h-5 w-5 text-green-500" /> WhatsApp: {siteData.whatsappNumber}
-                  </p>
-                )}
-                {siteData.secondaryPhoneNumber && (
-                  <p className="text-base text-gray-700 flex items-center justify-center gap-2">
-                    <Phone className="h-5 w-5 text-blue-500" /> Téléphone: {siteData.secondaryPhoneNumber}
-                  </p>
-                )}
-                {siteData.email && (
-                  <p className="text-base text-gray-700 flex items-center justify-center gap-2">
-                    <Mail className="h-5 w-5 text-red-500" /> Email: {siteData.email}
-                  </p>
-                )}
-                {siteData.businessLocation && (
-                  <p className="text-base text-gray-700 flex items-center justify-center gap-2">
-                    <MapPin className="h-5 w-5 text-gray-500" /> Localisation: {siteData.businessLocation}
-                  </p>
-                )}
-              </div>
+        <section id="hero" className={cn("py-16 md:py-24 text-white", primaryColorDarkBgClass)} style={{ backgroundImage: siteData.heroBackgroundImage ? `url(${siteData.heroBackgroundImage})` : 'none', backgroundSize: 'cover', backgroundPosition: 'center' }}>
+          <div className="container mx-auto px-4 md:px-6 max-w-7xl text-center bg-black/30 md:bg-transparent p-6 rounded-lg">
+            <h2 className="text-3xl md:text-5xl font-extrabold mb-4" id="hero-title">{siteData.publicName}</h2>
+            <p className="text-xl md:text-2xl font-light mb-8 max-w-3xl mx-auto" id="hero-slogan">{siteData.heroSlogan || "Bienvenue sur notre site !"}</p>
+            {sectionsVisibility.showContact && (
+              <a
+                href="#contact"
+                onClick={(e) => handleSmoothScroll(e, '#contact')}
+                className={cn("inline-flex items-center gap-3 px-8 py-3 rounded-lg font-bold text-lg text-white transition-all duration-300 ease-in-out transform hover:-translate-y-1 shadow-lg", secondaryColorClass, secondaryColorHoverBgClass)}
+                id="btn-contact-hero"
+              >
+                <MessageSquare className="h-5 w-5" /> Contactez-nous
+              </a>
             )}
           </div>
         </section>
       )}
 
-      <footer className="w-full py-6 bg-gray-800 text-white text-center mt-auto px-4">
-        <p className="text-xs text-gray-400">
-          © {new Date().getFullYear()} {siteData.publicName}. Tous droits réservés.
-        </p>
+      {/* 2. About Section */}
+      {sectionsVisibility.showAbout && (
+        <section id="about" className="py-12 bg-gray-100 px-4">
+          <div className="container mx-auto max-w-7xl text-center">
+            <h2 className={cn("text-3xl md:text-4xl font-bold mb-8 md:mb-12", primaryColorTextClass)} id="about-section-title">À Propos de {siteData.publicName}</h2>
+            <div className="flex flex-col md:flex-row gap-8 items-center">
+              <div className="md:w-1/2" id="about-text-content">
+                <p className="text-gray-700 text-base mb-4" id="about-paragraph-1">{siteData.aboutStory || "Nous sommes une entreprise dédiée à fournir des services de qualité à nos clients. Notre engagement est de vous accompagner dans vos projets avec professionnalisme et expertise."}</p>
+                <p className="text-gray-700 text-base mb-4" id="about-paragraph-2">{(siteData.aboutStory && siteData.aboutStory.length > 150) ? siteData.aboutStory.substring(150) : "Découvrez notre histoire et nos valeurs."}</p>
+              </div>
+              <div className="md:w-1/2" id="about-image-area">
+                {siteData.aboutImage ? (
+                  <Image src={siteData.aboutImage} alt="Image de l'entreprise" width={500} height={350} className="rounded-xl shadow-2xl object-cover w-full h-auto" />
+                ) : (
+                  <div className="w-full h-80 bg-gray-300 rounded-xl shadow-2xl flex items-center justify-center text-gray-600 text-xl font-semibold">Image À Propos</div>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* 3. Services/Products Section */}
+      {sectionsVisibility.showProductsServices && siteData.productsAndServices && siteData.productsAndServices.length > 0 && (
+        <section id="services" className="py-12 bg-white px-4">
+          <div className="container mx-auto max-w-7xl text-center">
+            <h2 className={cn("text-3xl md:text-4xl font-bold mb-8 md:mb-12", secondaryColorTextClass)} id="services-section-title">Nos Services / Produits</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="services-list">
+              {siteData.productsAndServices.map((item, index) => (
+                <div key={index} id={`service-card-${index}`} className="bg-gray-100 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out transform hover:-translate-y-1">
+                  <div className="h-40 overflow-hidden">
+                    {item.image ? (
+                      <Image src={item.image} alt={item.title} width={300} height={160} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-500 text-xl font-semibold">Image</div>
+                    )}
+                  </div>
+                  <div className="p-4">
+                    <h3 className="text-xl font-semibold mb-2 text-gray-800" id={`service-title-${index}`}>{item.title}</h3>
+                    <p className="text-gray-600 text-sm mb-4 line-clamp-3" id={`service-description-${index}`}>{item.description}</p>
+                    {item.price !== undefined && (
+                      <p className={cn("text-lg font-bold mb-3", primaryColorTextClass)} id={`service-price-${index}`}>
+                        {item.price.toFixed(2)} {item.currency || siteData.defaultCurrency || 'XOF'}
+                      </p>
+                    )}
+                    {sectionsVisibility.showContact && (
+                      <Link
+                        href="#contact"
+                        onClick={(e) => handleSmoothScroll(e, '#contact')}
+                        className={cn("inline-flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm text-white transition-colors duration-300", secondaryColorClass, secondaryColorHoverBgClass)}
+                        id={`btn-contact-service-${index}`}
+                      >
+                        <MessageSquare className="h-4 w-4" /> En savoir plus
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* 4. Contact Section */}
+      {sectionsVisibility.showContact && siteData.showContactForm && (
+        <section id="contact" className="py-12 bg-gray-100 px-4">
+          <div className="container mx-auto max-w-7xl text-center">
+            <h2 className={cn("text-3xl md:text-4xl font-bold mb-8 md:mb-12", primaryColorTextClass)} id="contact-section-title">Contactez-nous</h2>
+            <div className="max-w-3xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12">
+
+              {/* Informations de Contact */}
+              <div id="contact-info-block">
+                <h3 className="text-2xl font-bold mb-4 text-gray-800">Nos Coordonnées</h3>
+                <div className="space-y-4 text-lg text-gray-700">
+                  {siteData.businessLocation && (
+                    <div className="flex items-center gap-3" id="contact-location">
+                      <MapPin className={cn("h-6 w-6 flex-shrink-0", primaryColorTextClass)} />
+                      <span>{siteData.businessLocation}</span>
+                    </div>
+                  )}
+                  {siteData.secondaryPhoneNumber && (
+                    <a href={`tel:${siteData.secondaryPhoneNumber}`} className="flex items-center gap-3 hover:opacity-80 transition-opacity" id="contact-phone">
+                      <Phone className={cn("h-6 w-6 flex-shrink-0", primaryColorTextClass)} />
+                      <span>{siteData.secondaryPhoneNumber}</span>
+                    </a>
+                  )}
+                  {siteData.email && (
+                    <a href={`mailto:${siteData.email}`} className="flex items-center gap-3 hover:opacity-80 transition-opacity" id="contact-email">
+                      <Mail className={cn("h-6 w-6 flex-shrink-0", primaryColorTextClass)} />
+                      <span>{siteData.email}</span>
+                    </a>
+                  )}
+                  {siteData.whatsappNumber && (
+                    <a href={`https://wa.me/${siteData.whatsappNumber}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 hover:opacity-80 transition-opacity" id="contact-whatsapp">
+                      <MessageSquare className={cn("h-6 w-6 flex-shrink-0", primaryColorTextClass)} />
+                      <span>Contactez-nous sur WhatsApp</span>
+                    </a>
+                  )}
+                </div>
+              </div>
+
+              {/* Formulaire de Contact */}
+              <div id="contact-form-block">
+                <h3 className="text-2xl font-bold mb-4 text-gray-800">Envoyez-nous un message</h3>
+                <form onSubmit={handleSubmit} className="space-y-4" id="contact-form">
+                  <div className="form-group" id="form-group-name">
+                    <label htmlFor="name" className="block text-gray-700 font-medium mb-1 text-sm">Nom complet</label>
+                    <input type="text" id="name" name="name" required className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" value={formData.name} onChange={handleChange} />
+                  </div>
+                  <div className="form-group" id="form-group-phone">
+                    <label htmlFor="phone" className="block text-gray-700 font-medium mb-1 text-sm">Téléphone</label>
+                    <input type="tel" id="phone" name="phone" required className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" value={formData.phone} onChange={handleChange} />
+                  </div>
+                  <div className="form-group" id="form-group-email">
+                    <label htmlFor="email" className="block text-gray-700 font-medium mb-1 text-sm">Email</label>
+                    <input type="email" id="email" name="email" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" value={formData.email} onChange={handleChange} />
+                  </div>
+                  <div className="form-group" id="form-group-message">
+                    <label htmlFor="message" className="block text-gray-700 font-medium mb-1 text-sm">Message</label>
+                    <textarea id="message" name="message" required className="w-full px-3 py-2 border border-gray-300 rounded-lg min-h-[100px] resize-y focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" value={formData.message} onChange={handleChange}></textarea>
+                  </div>
+                  <button
+                    type="submit"
+                    className={cn("w-full px-5 py-2 rounded-lg font-bold text-white text-base transition-colors duration-300", primaryColorClass, primaryColorHoverBgClass)}
+                    disabled={isSubmitting}
+                    id="btn-submit-contact-form"
+                  >
+                    {isSubmitting ? "Envoi en cours..." : "Envoyer le message"}
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Footer */}
+      <footer className={cn("py-6 text-white px-4", primaryColorDarkBgClass)} id="main-footer">
+        <div className="container mx-auto max-w-7xl text-center">
+          <div className="flex justify-center gap-4 mb-4" id="footer-social-links">
+            {siteData.facebookLink && (
+              <a href={siteData.facebookLink} target="_blank" rel="noopener noreferrer" className="text-white hover:text-gray-300" id="footer-facebook">
+                <Facebook className="h-6 w-6" />
+              </a>
+            )}
+            {siteData.instagramLink && (
+              <a href={siteData.instagramLink} target="_blank" rel="noopener noreferrer" className="text-white hover:text-gray-300" id="footer-instagram">
+                <Instagram className="h-6 w-6" />
+              </a>
+            )}
+            {siteData.linkedinLink && (
+              <a href={siteData.linkedinLink} target="_blank" rel="noopener noreferrer" className="text-white hover:text-gray-300" id="footer-linkedin">
+                <Linkedin className="h-6 w-6" />
+              </a>
+            )}
+            {siteData.whatsappNumber && (
+              <a href={`https://wa.me/${siteData.whatsappNumber}`} target="_blank" rel="noopener noreferrer" className="text-white hover:text-gray-300" id="footer-whatsapp">
+                <MessageSquare className="h-6 w-6" />
+              </a>
+            )}
+          </div>
+          <p className="text-xs text-gray-400" id="footer-copyright">
+            © {new Date().getFullYear()} {siteData.publicName}. Tous droits réservés.
+          </p>
+        </div>
       </footer>
 
       {/* Back to Top Button */}
       <button
         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-        className={cn("fixed bottom-6 right-6 h-10 w-10 rounded-full flex items-center justify-center text-white shadow-lg transition-all duration-300", secondaryColorClass, secondaryColorHoverBgClass, showBackToTop ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible translate-y-4')}
+        className={cn("fixed bottom-6 right-6 h-10 w-10 rounded-full flex items-center justify-center text-white shadow-lg transition-all duration-300 z-40", secondaryColorClass, secondaryColorHoverBgClass, showBackToTop ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible translate-y-4')}
+        id="btn-back-to-top"
       >
         <ChevronUp className="h-5 w-5" />
       </button>
