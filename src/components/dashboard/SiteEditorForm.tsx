@@ -110,6 +110,9 @@ export function SiteEditorForm({ initialSiteData, subdomain, siteId }: SiteEdito
 
   const defaultValues: SiteEditorFormData = {
     ...initialSiteData,
+    firstName: initialSiteData.firstName || "", // Ensure default empty string
+    lastName: initialSiteData.lastName || "",   // Ensure default empty string
+    expertise: initialSiteData.expertise || "", // Ensure default empty string
     productsAndServices: initialSiteData.productsAndServices || [],
     testimonials: initialSiteData.testimonials || [],
     skills: initialSiteData.skills || [],
@@ -193,6 +196,7 @@ export function SiteEditorForm({ initialSiteData, subdomain, siteId }: SiteEdito
 
     let updatedLogoOrPhotoUrl: string | null = initialSiteData.logoOrPhoto || null;
     let updatedHeroBackgroundImageUrl: string | null = initialSiteData.heroBackgroundImage || null;
+    let updatedAboutImageUrl: string | null = initialSiteData.aboutImage || null; // Added for aboutImage
     const updatedProductImages: { [key: number]: string | null } = {};
     const updatedTestimonialAvatars: { [key: number]: string | null } = {};
 
@@ -215,6 +219,16 @@ export function SiteEditorForm({ initialSiteData, subdomain, siteId }: SiteEdito
         updatedHeroBackgroundImageUrl = data.heroBackgroundImage;
       } else {
         updatedHeroBackgroundImageUrl = null; // Clear if no file and not a string
+      }
+
+      // Handle about image upload
+      if (data.aboutImage instanceof File) {
+        updatedAboutImageUrl = await handleFileUpload(data.aboutImage, 'about');
+        if (updatedAboutImageUrl === null) throw new Error("About image upload failed.");
+      } else if (typeof data.aboutImage === 'string') {
+        updatedAboutImageUrl = data.aboutImage;
+      } else {
+        updatedAboutImageUrl = null; // Clear if no file and not a string
       }
 
       // Handle product images upload
@@ -246,6 +260,7 @@ export function SiteEditorForm({ initialSiteData, subdomain, siteId }: SiteEdito
         ...data,
         logoOrPhoto: updatedLogoOrPhotoUrl,
         heroBackgroundImage: updatedHeroBackgroundImageUrl,
+        aboutImage: updatedAboutImageUrl, // Include updated aboutImage
         productsAndServices: data.productsAndServices.map((product, index) => ({ // Removed explicit type here
           ...product,
           image: updatedProductImages[index] !== undefined ? updatedProductImages[index] : product.image,
@@ -510,6 +525,33 @@ export function SiteEditorForm({ initialSiteData, subdomain, siteId }: SiteEdito
                       <div className="mt-2">
                         <Image src={value} alt="Image de fond actuelle" width={200} height={100} className="object-cover" />
                         <p className="text-sm text-muted-foreground">Image de fond actuelle</p>
+                      </div>
+                    )}
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={control}
+                name="aboutImage"
+                render={({ field: { value, onChange, ...fieldProps } }: { field: ControllerRenderProps<SiteEditorFormData, "aboutImage"> }) => (
+                  <FormItem>
+                    <FormLabel>Image de la Section "À Propos" (Max {maxFileSizeMB}MB)</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...fieldProps}
+                        type="file"
+                        accept="image/*"
+                        onChange={(event) => {
+                          const file = event.target.files && event.target.files[0];
+                          onChange(file);
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                    {value && typeof value === 'string' && (
+                      <div className="mt-2">
+                        <Image src={value} alt="Image 'À Propos' actuelle" width={200} height={100} className="object-cover" />
+                        <p className="text-sm text-muted-foreground">Image 'À Propos' actuelle</p>
                       </div>
                     )}
                   </FormItem>

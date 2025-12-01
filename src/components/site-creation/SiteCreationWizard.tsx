@@ -12,6 +12,7 @@ import { WizardNavigation } from "./WizardNavigation";
 import { createClient } from "@/lib/supabase/client"; // Import Supabase client
 import { useRouter } from "next/navigation"; // Import useRouter
 import { SiteEditorFormData } from "@/lib/schemas/site-editor-form-schema"; // Import the comprehensive schema type
+import { TEMPLATE_GROUPS, FREE_ACCOUNT_SITE_LIMITS } from '@/lib/constants'; // Import constants
 
 // Import new step components
 import { EssentialDesignStep } from "./steps/EssentialDesignStep";
@@ -311,31 +312,60 @@ export function SiteCreationWizard({ initialSiteData }: SiteCreationWizardProps)
       return;
     }
 
-    // --- New: Site creation limits and template uniqueness checks ---
+    // --- Site creation limits and template uniqueness checks ---
     if (!initialSiteData?.id) { // Only apply these checks for new site creation
-      const { data: userSites, error: fetchSitesError } = await supabase
-        .from('sites')
-        .select('id, template_type')
-        .eq('user_id', user.id);
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
 
-      if (fetchSitesError) {
-        console.error("Error fetching user sites for limits:", fetchSitesError);
+      if (profileError || !profile) {
+        console.error("Error fetching user profile for site creation limits:", profileError);
         toast.error("Erreur lors de la vérification des limites de sites.");
         return;
       }
 
-      if (userSites && userSites.length >= 5) {
-        toast.error("Vous avez atteint la limite de 5 sites web par compte.");
-        return;
-      }
+      // Apply limits only for 'user' role (free accounts)
+      if (profile.role === 'user') {
+        const { data: userSites, error: fetchSitesError } = await supabase
+          .from('sites')
+          .select('id, template_type')
+          .eq('user_id', user.id);
 
-      const hasSameTemplate = userSites?.some(site => site.template_type === data.templateType);
-      if (hasSameTemplate) {
-        toast.error(`Vous avez déjà un site avec le template "${data.templateType}". Veuillez choisir un template différent.`);
-        return;
+        if (fetchSitesError) {
+          console.error("Error fetching user sites for limits:", fetchSitesError);
+          toast.error("Erreur lors de la vérification des limites de sites.");
+          return;
+        }
+
+        let portfolioServicesCount = 0;
+        let ecommerceCount = 0;
+
+        userSites?.forEach(site => {
+          if (TEMPLATE_GROUPS.PORTFOLIO_SERVICES.includes(site.template_type)) {
+            portfolioServicesCount++;
+          } else if (TEMPLATE_GROUPS.ECOMMERCE.includes(site.template_type)) {
+            ecommerceCount++;
+          }
+        });
+
+        const newSiteTemplateType = data.templateType;
+
+        if (TEMPLATE_GROUPS.PORTFOLIO_SERVICES.includes(newSiteTemplateType!)) {
+          if (portfolioServicesCount >= FREE_ACCOUNT_SITE_LIMITS.PORTFOLIO_SERVICES) {
+            toast.error(`Vous avez atteint la limite de ${FREE_ACCOUNT_SITE_LIMITS.PORTFOLIO_SERVICES} site(s) de type Portfolio/Services pour votre compte gratuit.`);
+            return;
+          }
+        } else if (TEMPLATE_GROUPS.ECOMMERCE.includes(newSiteTemplateType!)) {
+          if (ecommerceCount >= FREE_ACCOUNT_SITE_LIMITS.ECOMMERCE) {
+            toast.error(`Vous avez atteint la limite de ${FREE_ACCOUNT_SITE_LIMITS.ECOMMERCE} site(s) de type E-commerce pour votre compte gratuit.`);
+            return;
+          }
+        }
       }
     }
-    // --- End New: Site creation limits and template uniqueness checks ---
+    // --- End Site creation limits ---
 
 
     let siteIdentifier = initialSiteData?.subdomain; // Use existing identifier if editing

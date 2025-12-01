@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { getServerUser } from '@/lib/serverAuth';
 import { ecommerceWizardSchema } from '@/lib/schemas/site-editor-form-schema';
+import { TEMPLATE_GROUPS, FREE_ACCOUNT_SITE_LIMITS } from '@/lib/constants'; // Import constants
 
 // Simple slug generator (same rules as client-side)
 function generateSlug(text: string) {
@@ -36,6 +37,54 @@ export async function POST(request: Request) {
     const siteData = parseResult.data as any;
     const providedId = body.id as string | undefined;
     let subdomain = body.subdomain as string | undefined;
+
+    // Check user role for site creation limits
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+
+    if (profileError || !profile) {
+      console.error("Error fetching user profile for site creation limits:", profileError);
+      return NextResponse.json({ error: 'Profil utilisateur non trouvé.' }, { status: 404 });
+    }
+
+    // Apply limits only for 'user' role (free accounts) and if creating a new site
+    if (profile.role === 'user' && !providedId) {
+      const { data: userSites, error: fetchSitesError } = await supabase
+        .from('sites')
+        .select('template_type')
+        .eq('user_id', user.id);
+
+      if (fetchSitesError) {
+        console.error("Error fetching user sites for limits:", fetchSitesError);
+        return NextResponse.json({ error: 'Erreur lors de la vérification des limites de sites.' }, { status: 500 });
+      }
+
+      let portfolioServicesCount = 0;
+      let ecommerceCount = 0;
+
+      userSites?.forEach(site => {
+        if (TEMPLATE_GROUPS.PORTFOLIO_SERVICES.includes(site.template_type)) {
+          portfolioServicesCount++;
+        } else if (TEMPLATE_GROUPS.ECOMMERCE.includes(site.template_type)) {
+          ecommerceCount++;
+        }
+      });
+
+      const newSiteTemplateType = siteData.templateType;
+
+      if (TEMPLATE_GROUPS.PORTFOLIO_SERVICES.includes(newSiteTemplateType)) {
+        if (portfolioServicesCount >= FREE_ACCOUNT_SITE_LIMITS.PORTFOLIO_SERVICES) {
+          return NextResponse.json({ error: `Vous avez atteint la limite de ${FREE_ACCOUNT_SITE_LIMITS.PORTFOLIO_SERVICES} site(s) de type Portfolio/Services pour votre compte gratuit.` }, { status: 403 });
+        }
+      } else if (TEMPLATE_GROUPS.ECOMMERCE.includes(newSiteTemplateType)) {
+        if (ecommerceCount >= FREE_ACCOUNT_SITE_LIMITS.ECOMMERCE) {
+          return NextResponse.json({ error: `Vous avez atteint la limite de ${FREE_ACCOUNT_SITE_LIMITS.ECOMMERCE} site(s) de type E-commerce pour votre compte gratuit.` }, { status: 403 });
+        }
+      }
+    }
 
     // If updating an existing site
     if (providedId) {

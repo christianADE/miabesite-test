@@ -11,6 +11,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { createClient } from "@/lib/supabase/client"; // Import client-side Supabase
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { TEMPLATE_GROUPS, FREE_ACCOUNT_SITE_LIMITS } from '@/lib/constants'; // Import constants
 
 interface DashboardSidebarProps {
   subdomain?: string;
@@ -26,13 +27,18 @@ export function DashboardSidebar({ subdomain, onLinkClick }: DashboardSidebarPro
   const [userRole, setUserRole] = React.useState<string | null>(null);
   const [loadingRole, setLoadingRole] = React.useState(true);
   const [hasAIVideoAccess, setHasAIVideoAccess] = React.useState(false);
+  const [siteCounts, setSiteCounts] = React.useState({
+    portfolioServices: 0,
+    ecommerce: 0,
+  });
 
   React.useEffect(() => {
-    const fetchUserPermissions = async () => {
+    const fetchUserPermissionsAndSiteCounts = async () => {
       const { data: { user }, error: userError } = await supabase.auth.getUser();
       if (userError || !user) {
         setUserRole(null);
         setHasAIVideoAccess(false);
+        setSiteCounts({ portfolioServices: 0, ecommerce: 0 });
         setLoadingRole(false);
         return;
       }
@@ -57,20 +63,51 @@ export function DashboardSidebar({ subdomain, onLinkClick }: DashboardSidebarPro
         .eq('user_id', user.id)
         .single();
       
-      // Ensure isAdmin is always a boolean
       const isAdmin = !!profile && (profile.role === 'admin' || profile.role === 'super_admin');
       setHasAIVideoAccess(!!accessEntry || isAdmin);
+
+      // Fetch user sites for limits if it's a 'user' role
+      if (profile?.role === 'user') {
+        const { data: sites, error: sitesError } = await supabase
+          .from('sites')
+          .select('template_type')
+          .eq('user_id', user.id);
+
+        if (sitesError) {
+          console.error("Error fetching user sites for limits:", sitesError);
+        } else {
+          let portfolioServicesCount = 0;
+          let ecommerceCount = 0;
+
+          sites?.forEach(site => {
+            if (TEMPLATE_GROUPS.PORTFOLIO_SERVICES.includes(site.template_type)) {
+              portfolioServicesCount++;
+            } else if (TEMPLATE_GROUPS.ECOMMERCE.includes(site.template_type)) {
+              ecommerceCount++;
+            }
+          });
+          setSiteCounts({
+            portfolioServices: portfolioServicesCount,
+            ecommerce: ecommerceCount,
+          });
+        }
+      } else {
+        // Admins have no limits, so set counts to 0 or max to avoid confusion
+        setSiteCounts({ portfolioServices: 0, ecommerce: 0 });
+      }
+
       setLoadingRole(false);
     };
 
-    fetchUserPermissions();
+    fetchUserPermissionsAndSiteCounts();
 
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' || event === 'USER_UPDATED') {
-        fetchUserPermissions();
+        fetchUserPermissionsAndSiteCounts();
       } else if (event === 'SIGNED_OUT') {
         setUserRole(null);
         setHasAIVideoAccess(false);
+        setSiteCounts({ portfolioServices: 0, ecommerce: 0 });
       }
     });
 
@@ -172,6 +209,14 @@ export function DashboardSidebar({ subdomain, onLinkClick }: DashboardSidebarPro
     }
   };
 
+  const remainingPortfolioSlots = FREE_ACCOUNT_SITE_LIMITS.PORTFOLIO_SERVICES - siteCounts.portfolioServices;
+  const remainingEcommerceSlots = FREE_ACCOUNT_SITE_LIMITS.ECOMMERCE - siteCounts.ecommerce;
+  const canCreateAnySite = userRole !== 'user' || remainingPortfolioSlots > 0 || remainingEcommerceSlots > 0;
+
+  const createSiteButtonTooltip = userRole === 'user' && !canCreateAnySite
+    ? "Vous avez atteint la limite de création de sites pour votre compte gratuit."
+    : "Créez un nouveau site web.";
+
   return (
     <aside className="sticky top-0 h-screen w-full bg-card text-card-foreground border-r border-border p-4 flex flex-col">
       <div className="mb-4">
@@ -241,13 +286,27 @@ export function DashboardSidebar({ subdomain, onLinkClick }: DashboardSidebarPro
         </TooltipProvider>
       </nav>
       <div className="mt-auto pt-4 border-t border-border">
-        <Link href="/create-site/select-template" passHref>
-          <Button asChild className="w-full bg-primary hover:bg-primary/90 text-primary-foreground" onClick={onLinkClick}>
-            <div>
-              <PlusCircle className="mr-2 h-5 w-5" /> Créer un site
-            </div>
-          </Button>
-        </Link>
+        {userRole === 'user' && (
+          <div className="text-xs text-muted-foreground mb-2 text-center">
+            Sites Portfolio/Services restants: {remainingPortfolioSlots} / {FREE_ACCOUNT_SITE_LIMITS.PORTFOLIO_SERVICES}
+            <br />
+            Sites E-commerce restants: {remainingEcommerceSlots} / {FREE_ACCOUNT_SITE_LIMITS.ECOMMERCE}
+          </div>
+        )}
+        <TooltipProvider>
+          <Tooltip delayDuration={0}>
+            <TooltipTrigger asChild>
+              <Link href="/create-site/select-template" passHref>
+                <Button asChild className="w-full bg-primary hover:bg-primary/90 text-primary-foreground" onClick={onLinkClick} disabled={!canCreateAnySite}>
+                  <div>
+                    <PlusCircle className="mr-2 h-5 w-5" /> Créer un site
+                  </div>
+                </Button>
+              </Link>
+            </TooltipTrigger>
+            {!canCreateAnySite && <TooltipContent><p>{createSiteButtonTooltip}</p></TooltipContent>}
+          </Tooltip>
+        </TooltipProvider>
       </div>
     </aside>
   );

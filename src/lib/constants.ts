@@ -20,3 +20,15 @@ export const premiumTemplates = [
   { value: "professional-portfolio", label: "Portfolio Professionnel" },
   { value: "artisan-ecommerce", label: "E-commerce Artisanal" },
 ];
+
+// Define template groups for site limits
+export const TEMPLATE_GROUPS = {
+  PORTFOLIO_SERVICES: ["default", "service-portfolio", "professional-portfolio"],
+  ECOMMERCE: ["ecommerce", "artisan-ecommerce"],
+};
+
+// Define site limits for 'user' role (free accounts)
+export const FREE_ACCOUNT_SITE_LIMITS = {
+  PORTFOLIO_SERVICES: 1, // 1 site for any template in this group
+  ECOMMERCE: 2,          // 2 sites for any template in this group
+};
