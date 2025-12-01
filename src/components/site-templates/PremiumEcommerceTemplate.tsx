@@ -9,6 +9,7 @@ interface PremiumEcommerceTemplateProps {
   siteData: {
     publicName?: string;
     heroSlogan?: string;
+    heroBadge?: string;
     aboutStory?: string;
     primaryColor?: string;
     secondaryColor?: string;
@@ -25,6 +26,22 @@ interface PremiumEcommerceTemplateProps {
     instagramLink?: string;
     whatsappNumber?: string;
     email?: string;
+    // Dynamic UI fields added for editor/wizard
+    navProductsLabel?: string;
+    navAboutLabel?: string;
+    navContactLabel?: string;
+    cartLabel?: string;
+    categoriesLabel?: string;
+    aboutSectionLabel?: string;
+    emptyProductsText?: string;
+    testimonials?: Array<{ name?: string; text?: string; rating?: number }>;
+    stats?: Array<{ label: string; value: string | number }>;
+    // CTA texts
+    ctaPrimaryText?: string;
+    ctaSecondaryText?: string;
+    ctaHeadline?: string;
+    ctaSubtext?: string;
+    ctaButtonText?: string;
   };
   subdomain?: string;
 }
@@ -45,12 +62,59 @@ export function PremiumEcommerceTemplate({
 
   const primaryColor = siteData.primaryColor || "#000000";
   const accentColor = siteData.secondaryColor || "#ffffff";
-
   const products = siteData.productsAndServices || [];
+
+  // Helpers to choose readable text color on top of a background color
+  const hexToRgb = (hex: string) => {
+    try {
+      const sanitized = hex.replace('#', '');
+      const full = sanitized.length === 3 ? sanitized.split('').map(c => c + c).join('') : sanitized;
+      const bigint = parseInt(full, 16);
+      return {
+        r: (bigint >> 16) & 255,
+        g: (bigint >> 8) & 255,
+        b: bigint & 255,
+      };
+    } catch (e) {
+      return { r: 0, g: 0, b: 0 };
+    }
+  };
+
+  const getContrastColor = (hex: string) => {
+    const { r, g, b } = hexToRgb(hex);
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    return luminance > 0.6 ? '#000000' : '#ffffff';
+  };
+
+  const primaryTextColor = getContrastColor(primaryColor);
+
+  // Labels and dynamic strings (editable via siteData)
+  const navProductsLabel = siteData.navProductsLabel || 'Produits';
+  const navAboutLabel = siteData.navAboutLabel || 'À propos';
+  const navContactLabel = siteData.navContactLabel || 'Contact';
+  const cartLabel = siteData.cartLabel || 'Panier';
+  const categoriesLabel = siteData.categoriesLabel || 'Catégories';
+  const aboutSectionLabel = (siteData as any).aboutSectionLabel || navAboutLabel;
+
   const displayProducts = products.slice(0, 6);
+  const stats = siteData.stats && siteData.stats.length > 0 ? siteData.stats : [
+    { label: 'Produits', value: displayProducts.length },
+    { label: 'Clients', value: '5K+' },
+    { label: 'Années', value: '3+' },
+  ];
+
+  const defaultTestimonials = [
+    { name: "Sarah M.", text: "Qualité exceptionnelle et service impeccable. Je suis ravie!", rating: 5 },
+    { name: "Jean P.", text: "Les produits sont à la hauteur de mes attentes. Très recommandé!", rating: 5 },
+  ];
+
+  const testimonials = siteData.testimonials && siteData.testimonials.length > 0 ? siteData.testimonials : defaultTestimonials;
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 overflow-hidden">
+    <div
+      className="min-h-screen bg-white text-gray-900 overflow-hidden"
+      style={{ ['--primary' as any]: primaryColor, ['--accent' as any]: accentColor }}
+    >
       {/* Navigation Premium */}
       <nav className="fixed top-0 w-full z-50 backdrop-blur-md bg-white/60 border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
@@ -76,19 +140,19 @@ export function PremiumEcommerceTemplate({
 
           <div className="hidden md:flex gap-8 items-center">
             <a href="#products" className="text-sm hover:text-gray-600 transition">
-              Produits
+              {navProductsLabel}
             </a>
             <a href="#about" className="text-sm hover:text-gray-600 transition">
-              À propos
+              {navAboutLabel}
             </a>
             <a href="#contact" className="text-sm hover:text-gray-600 transition">
-              Contact
+              {navContactLabel}
             </a>
             <button
-              style={{ backgroundColor: primaryColor }}
-              className="px-6 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition text-white shadow"
+              style={{ backgroundColor: primaryColor, color: primaryTextColor }}
+              className="px-6 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition shadow"
             >
-              Panier
+              {cartLabel}
             </button>
           </div>
         </div>
@@ -96,13 +160,13 @@ export function PremiumEcommerceTemplate({
         {isMenuOpen && (
           <div className="md:hidden bg-white p-4 space-y-4 border-t border-gray-200">
             <a href="#products" className="block text-sm hover:text-gray-600 transition">
-              Produits
+              {navProductsLabel}
             </a>
             <a href="#about" className="block text-sm hover:text-gray-600 transition">
-              À propos
+              {navAboutLabel}
             </a>
             <a href="#contact" className="block text-sm hover:text-gray-600 transition">
-              Contact
+              {navContactLabel}
             </a>
           </div>
         )}
@@ -142,7 +206,7 @@ export function PremiumEcommerceTemplate({
               className="text-sm font-semibold uppercase tracking-widest"
               style={{ color: primaryColor }}
             >
-              ✨ Collection Nouvelle
+              {siteData.heroBadge || '✨ Collection Nouvelle'}
             </p>
             <h1 className="text-6xl md:text-7xl font-bold tracking-tight leading-tight">
               {siteData.heroSlogan || "Bienvenue au futur"}
@@ -154,21 +218,21 @@ export function PremiumEcommerceTemplate({
 
           <div className="flex gap-4 justify-center flex-wrap pt-8">
             <button
-              style={{ backgroundColor: primaryColor }}
-              className="px-8 py-3 rounded-lg font-semibold text-white hover:opacity-90 transition group flex items-center gap-2 shadow"
+              style={{ backgroundColor: primaryColor, color: primaryTextColor }}
+              className="px-8 py-3 rounded-lg font-semibold hover:opacity-90 transition group flex items-center gap-2 shadow"
             >
-              Découvrir
+              {siteData.ctaPrimaryText || 'Découvrir'}
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition" />
             </button>
             <button className="px-8 py-3 rounded-lg font-semibold border border-gray-200 text-gray-700 hover:bg-gray-50 transition">
-              En savoir plus
+              {siteData.ctaSecondaryText || 'En savoir plus'}
             </button>
           </div>
 
           {/* Scroll indicator */}
           <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
-            <div className="w-6 h-10 border border-white/30 rounded-full flex items-center justify-center">
-              <div className="w-1 h-2 bg-white rounded-full animate-bounce" />
+            <div className="w-6 h-10 border border-gray-200 rounded-full flex items-center justify-center">
+              <div className="w-1 h-2 rounded-full animate-bounce" style={{ backgroundColor: primaryColor }} />
             </div>
           </div>
         </div>
@@ -179,7 +243,7 @@ export function PremiumEcommerceTemplate({
         <div className="max-w-7xl mx-auto space-y-16">
           <div className="text-center space-y-4">
             <p className="text-sm font-semibold uppercase tracking-widest" style={{ color: primaryColor }}>
-              Catégories
+              {categoriesLabel}
             </p>
             <h2 className="text-5xl font-bold">Explorez nos collections</h2>
           </div>
@@ -242,10 +306,11 @@ export function PremiumEcommerceTemplate({
                     <button
                       style={{
                         backgroundColor: hoveredProduct === idx ? primaryColor : "rgba(0,0,0,0.06)",
+                        color: hoveredProduct === idx ? primaryTextColor : undefined,
                       }}
                       className="p-3 rounded-full transition-all duration-300 hover:scale-110"
                     >
-                      <ShoppingCart className="w-5 h-5 text-white" />
+                      <ShoppingCart className="w-5 h-5" style={{ color: hoveredProduct === idx ? primaryTextColor : undefined }} />
                     </button>
                   </div>
 
@@ -265,7 +330,7 @@ export function PremiumEcommerceTemplate({
 
           {displayProducts.length === 0 && (
             <div className="text-center py-20">
-              <p className="text-gray-400 text-lg">Aucun produit pour le moment</p>
+              <p className="text-gray-400 text-lg">{siteData.emptyProductsText || 'Aucun produit pour le moment'}</p>
             </div>
           )}
         </div>
@@ -276,18 +341,14 @@ export function PremiumEcommerceTemplate({
         <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <div className="space-y-6">
             <p className="text-sm font-semibold uppercase tracking-widest" style={{ color: primaryColor }}>
-              À propos
+              {aboutSectionLabel}
             </p>
             <h2 className="text-4xl font-bold leading-tight">Qui sommes-nous?</h2>
             <p className="text-gray-400 text-lg leading-relaxed">
               {siteData.aboutStory || "Nous sommes passionnés par la création de produits exceptionnels qui allient innovation, qualité et style premium."}
             </p>
             <div className="grid grid-cols-3 gap-4 pt-8">
-              {[
-                { label: "Produits", value: displayProducts.length },
-                { label: "Clients", value: "5K+" },
-                { label: "Années", value: "3+" },
-              ].map((stat, idx) => (
+              {stats.map((stat: any, idx: number) => (
                 <div key={idx} className="text-center p-4 rounded-lg bg-white/5 border border-white/10">
                   <p className="text-2xl font-bold" style={{ color: primaryColor }}>
                     {stat.value}
@@ -328,34 +389,13 @@ export function PremiumEcommerceTemplate({
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {[
-              {
-                name: "Sarah M.",
-                text: "Qualité exceptionnelle et service impeccable. Je suis ravie!",
-                rating: 5,
-              },
-              {
-                name: "Jean P.",
-                text: "Les produits sont à la hauteur de mes attentes. Très recommandé!",
-                rating: 5,
-              },
-              {
-                name: "Marie L.",
-                text: "Design moderne et livraison rapide. Parfait!",
-                rating: 5,
-              },
-              {
-                name: "Thomas D.",
-                text: "Une expérience shopping premium du début à la fin.",
-                rating: 5,
-              },
-            ].map((testimonial, idx) => (
+            {testimonials.map((testimonial: any, idx: number) => (
               <div
                 key={idx}
                 className="p-6 rounded-2xl bg-white shadow-sm border border-gray-100 hover:shadow-md transition-all duration-500 group"
               >
                 <div className="flex gap-1 mb-4">
-                  {[...Array(testimonial.rating)].map((_, i) => (
+                  {[...Array(testimonial.rating || 5)].map((_: any, i: number) => (
                     <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                   ))}
                 </div>
@@ -371,16 +411,16 @@ export function PremiumEcommerceTemplate({
       <section className="py-20 px-4 relative overflow-hidden">
         <div className="max-w-4xl mx-auto relative z-10 space-y-8 text-center">
           <h2 className="text-4xl md:text-5xl font-bold">
-            Prêt à transformer votre style?
+            {siteData.ctaHeadline || 'Prêt à transformer votre style?'}
           </h2>
-          <p className="text-xl text-gray-400">
-            Découvrez notre nouvelle collection et bénéficiez de -20% sur votre première commande
+          <p className="text-xl text-gray-600">
+            {siteData.ctaSubtext || 'Découvrez notre nouvelle collection et bénéficiez de -20% sur votre première commande'}
           </p>
           <button
-            style={{ backgroundColor: primaryColor }}
-            className="px-10 py-4 rounded-lg font-semibold text-white text-lg hover:opacity-90 transition group inline-flex items-center gap-2"
+            style={{ backgroundColor: primaryColor, color: primaryTextColor }}
+            className="px-10 py-4 rounded-lg font-semibold text-lg hover:opacity-90 transition group inline-flex items-center gap-2"
           >
-            Commencer maintenant
+            {siteData.ctaButtonText || 'Commencer maintenant'}
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition" />
           </button>
         </div>
@@ -409,12 +449,12 @@ export function PremiumEcommerceTemplate({
               <ul className="space-y-2 text-sm text-gray-400">
                 <li>
                   <a href="#products" className="hover:text-white transition">
-                    Produits
+                    {navProductsLabel}
                   </a>
                 </li>
                 <li>
                   <a href="#about" className="hover:text-white transition">
-                    À propos
+                    {navAboutLabel}
                   </a>
                 </li>
               </ul>

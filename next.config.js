@@ -46,7 +46,7 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: false, // ✅ Réactivé pour réactiver la vérification des types
   },
-  output: 'standalone', // ✅ Activé pour optimiser le déploiement Docker
+  // Note: `output: 'standalone'` removed to avoid Windows symlink (EPERM) issues during local builds.
   async headers() {
     return [
       {
